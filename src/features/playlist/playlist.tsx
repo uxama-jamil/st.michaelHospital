@@ -1,3 +1,5 @@
+import './playlist.scss'
+
 const Playlist =  ()=> {
     return <>
 

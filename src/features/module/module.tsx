@@ -69,7 +69,7 @@ const modulesData = [
 import GenericGrid, { StatusBadge, KeywordChip } from "@component/GenericGrid";
 import CIcon from "@coreui/icons-react";
 import { cilPencil, cilTrash, cilArrowRight, cilReload } from "@coreui/icons";
-import { Questions } from "@/features/modules/add-content/questions/questions";
+import { Questions } from "@/features/module/content/add-content/questions/questions";
 import { Card } from "@components/card/card";
 import './module.scss'
 

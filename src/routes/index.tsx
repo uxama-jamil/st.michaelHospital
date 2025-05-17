@@ -1,28 +1,28 @@
-import ModulesManagement from "../features/modules/module";
-import Login from "@/features/auth/Login";
-import LoginForm from "../features/auth/login-form";
-import Layout from "../features/layout";
-import User from "../features/users/user";
-import Playlist from "@/features/playlists/playlist";
-import ForgotPassword from "@/features/auth/forgot-password/forgot-password";
 import { Navigate } from "react-router-dom";
-// import ModulesManagement from '@/features/modules/module';
-// Other pages...
+import { lazy } from "react";
 
+const AuthLayout = lazy(() => import('@/features/auth-layout/auth-layout'));
+const Login = lazy(() => import('@/features/auth-layout/login/login'));
+const Layout = lazy(() => import('@/features/layout/layout'));
+const Module = lazy(() => import('@/features/module/module'));
+const User = lazy(() => import('@/features/user/user'));
+const Playlist = lazy(() => import('@/features/playlist/playlist'));
+const ForgotPassword = lazy(() => import('@/features/auth-layout/forgot-password/forgot-password'));
+const ResetPassword = lazy(() => import('@/features/auth-layout/reset-password/reset-password'));
 export const AppRoutes = [
   {
     path: "/login",
     element: (
-      <Login>
-        <LoginForm />
-      </Login>
+      <AuthLayout>
+        <Login />
+      </AuthLayout>
     ),
   },
   {
     path: "/module",
     element: (
       <Layout>
-        <ModulesManagement />
+        <Module />
       </Layout>
     ),
   },
@@ -45,13 +45,21 @@ export const AppRoutes = [
   {
     path: "/forgot-password",
     element: (
-      <Login>
+      <AuthLayout>
         <ForgotPassword />
-      </Login>
+      </AuthLayout>
+    ),
+  },
+  {
+    path: "/reset-password",
+    element: (
+      <Layout>
+        <ResetPassword />
+      </Layout>
     ),
   },
   {
     path: "*",
     element: <Navigate to="/login" />,
-  },
+  }
 ];

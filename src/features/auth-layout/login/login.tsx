@@ -1,9 +1,9 @@
-import React from "react";
 import Input from "@component/input/input";
 import Button from "@component/button/button";
 import { Link } from "react-router-dom";
+import './login.scss'
 
-const Loginform = () => {
+const Login = () => {
   return (
     <div className="login-box">
       <div className="form-title">Sign In</div>
@@ -30,4 +30,4 @@ const Loginform = () => {
   );
 };
 
-export default Loginform;
+export default Login;

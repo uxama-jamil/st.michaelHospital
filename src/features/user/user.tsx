@@ -1,3 +1,4 @@
+import './user.scss'
 const User =  ()=> {
     return <>
 
