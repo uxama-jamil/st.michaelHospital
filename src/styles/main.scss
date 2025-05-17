@@ -1,0 +1,22 @@
+@import "../../node_modules/@coreui/coreui/scss/coreui";
+@import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600;700&display=swap");
+@import "./colors.scss"; // Optional theme overrides
+
+body {
+  font-family: "Open Sans", sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.montserrat {
+  font-family: "Montserrat", sans-serif;
+}
+
+.badge {
+  font-family: "Poppins", sans-serif !important;
+}

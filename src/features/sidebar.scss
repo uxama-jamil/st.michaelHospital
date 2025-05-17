@@ -1,0 +1,46 @@
+@import '../styles/colors.scss';
+
+.sidebar-wrapper{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    width: 250px;
+    padding: 16px;
+    background-color: $base-theme-sidebar-bg;
+    z-index: 999;
+    
+    img.shutter{
+        position: absolute;
+        top: 0;
+        left: -41px;
+        opacity: 50%;
+        mix-blend-mode: screen;
+        z-index: -999;
+        width: 328px;
+        height: 494px;
+
+      }
+    .navigations{
+        h2{
+            margin-bottom: 24px;
+            color: $base-theme-side-heading;
+        }
+        display: flex;
+        flex-direction: column;
+        gap:16px;
+        .navs{
+            display: flex;
+            padding: 10px 12px;
+            gap: 8px;
+            color: #fff;
+            &:hover{
+                background-color: #fff;
+                cursor: pointer;
+                color:$base-theme-nav-selected;
+                border-radius: 8px;
+            }
+        }
+    }
+    }

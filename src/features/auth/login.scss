@@ -1,0 +1,110 @@
+@import "../../styles/colors.scss";
+
+.login-wrapper {
+  display: flex;
+  min-height: 100vh;
+  background-color: $base-theme-login-ls-bg;
+
+  .left-panel {
+    position: relative;
+    background-color: $base-theme-login-ls-bg;
+    color: #fff;
+    flex: 1;
+    z-index: 999;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    padding: 3rem 2rem;
+
+    .shutter {
+      position: absolute;
+      top: -6%;
+      left: 0;
+      opacity: 50%;
+      width: 100%;
+      mix-blend-mode: screen;
+    }
+
+    .logo-text {
+      font-size: 2rem;
+      margin-top: auto;
+    }
+
+    .powered-by {
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+
+    img.powered-logo {
+      max-width: 120px;
+      margin-top: 0.5rem;
+    }
+  }
+
+  .right-panel {
+    position: relative;
+    background-color: $base-theme-login-rs-bg;
+    flex: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid transparent;
+    border-radius: 15px;
+
+
+
+    .vector1 {
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+
+    .vector2 {
+      position: absolute;
+      left: -19px;
+      top: 89.214px;
+    }
+
+    .vector3 {
+      position: absolute;
+      left: 129.903px;
+      top: -24px;
+    }
+
+    .login-box {
+      background: white;
+      border-radius: 1rem;
+      padding: 2rem;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 100%;
+
+      .form-title {
+        font-weight: 600;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .form-subtitle {
+        color: #6c757d;
+        margin-bottom: 1.5rem;
+      }
+
+      .forgot-link {
+        display: block;
+        text-align: right;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        color: #6a49a0;
+      }
+
+      .login-btn {
+        width: 100%;
+        background: linear-gradient(to right, #6a49a0, #503077);
+        color: #fff;
+      }
+    }
+  }
+}

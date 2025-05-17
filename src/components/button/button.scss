@@ -1,0 +1,20 @@
+.gradient-button {
+  width: 100%;
+  background: linear-gradient(to right, #6a49a0, #503077);
+  color: #fff !important;
+  border: none;
+  border-radius: 9999px !important; /* pill shape */
+  font-weight: 500;
+  font-size: 1rem;
+  padding: 10px 0 !important; /* vertical padding, horizontal will be set by parent or default */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+  transition: background 0.2s;
+}
+
+.gradient-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
