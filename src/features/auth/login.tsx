@@ -5,6 +5,7 @@ import shutter from "@assets/svg/shutterstock.svg";
 import vector1 from "@assets/svg/vector1.svg";
 import vector2 from "@assets/svg/vector2.svg";
 import vector3 from "@assets/svg/vector3.svg";
+import Loginform from "./login-form";
 
 const Login = ({ children }) => {
   return (

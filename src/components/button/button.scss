@@ -1,15 +1,9 @@
 @import "@styles/main.scss";
-.gradient-button {
+
+.main-button {
   width: 100%;
   // background: linear-gradient(to right, #6a49a0, #503077);
-  background: linear-gradient(
-    to right,
-    $base-theme-button-bg,
-    $base-theme-button-bg2
-  );
 
-  color: #fff !important;
-  border: none;
   border-radius: 9999px !important; /* pill shape */
   font-weight: 500;
   font-size: 1rem;
@@ -19,6 +13,29 @@
   justify-content: center;
   box-shadow: none;
   transition: background 0.2s;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: 0.143px;
+}
+.gradient-button {
+  background: linear-gradient(
+    to right,
+    $base-theme-button-bg,
+    $base-theme-button-bg2
+  ) !important;
+  color: #fff !important;
+  border: 1px solid $base-theme-button-bg !important;
+}
+.cancel-button {
+  background: $base-theme-cancel-button-bg !important;
+  color: #000 !important;
+  border: 1px solid $base-theme-cancel-button-bg !important;
+}
+
+.publish-button {
+  background: $base-theme-publish-button-bg !important;
+  color: $base-theme-publish-button-text !important;
+  border: 1px solid $base-theme-publish-button-bg !important;
 }
 
 .gradient-button:disabled {

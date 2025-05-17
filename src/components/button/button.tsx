@@ -19,12 +19,19 @@ const Button: React.FC<ButtonProps> = ({
   className = "",
   children,
 }) => {
+  const buttonTypeClass = text?.toLowerCase().includes("publish")
+    ? "publish-button"
+    : text?.toLowerCase().includes("cancel")
+    ? "cancel-button"
+    : "gradient-button";
   return (
     <CButton
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`gradient-button${className ? " " + className : ""}`}
+      className={`${buttonTypeClass}${
+        className ? " " + className : ""
+      } montserrat main-button`}
     >
       {children || text}
     </CButton>
