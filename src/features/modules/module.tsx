@@ -69,6 +69,9 @@ const modulesData = [
 import GenericGrid, { StatusBadge, KeywordChip } from "@component/GenericGrid";
 import CIcon from "@coreui/icons-react";
 import { cilPencil, cilTrash, cilArrowRight, cilReload } from "@coreui/icons";
+import { Questions } from "@/features/modules/add-content/questions/questions";
+import { Card } from "@components/card/card";
+import './module.scss'
 
 const columns = [
   { key: "name", label: "Playlist Name" },
@@ -157,12 +160,18 @@ const ModulesManagement = () => {
     //     </CCol>
     //   </CRow>
     // </CContainer>
-    <GenericGrid
-      columns={columns}
-      data={data}
-      actions={actions}
-      pagination={pagination}
-    />
+    // <GenericGrid
+    //   columns={columns}
+    //   data={data}
+    //   actions={actions}
+    //   pagination={pagination}
+    // />
+    // <Questions/>
+    <div className="card-sample">
+      <Card header={'Questionnaire details'}>
+        <Questions/>
+      </Card>
+    </div>
   );
 };
 
