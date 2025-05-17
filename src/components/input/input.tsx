@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { CFormInput } from "@coreui/react";
-import CIcon from "@coreui/icons-react";
+import eye from "@assets/svg/eye.svg";
 import "./input.scss";
 
 interface InputProps extends React.ComponentProps<typeof CFormInput> {
@@ -24,7 +24,7 @@ const Input: React.FC<InputProps> = (props) => {
           tabIndex={-1}
           onClick={() => setShowPassword((v) => !v)}
         >
-          <CIcon icon={showPassword ? "cil-eye-slash" : "cil-eye"} />
+          <img src={eye} alt="eye" />
         </button>
       )}
     </div>
