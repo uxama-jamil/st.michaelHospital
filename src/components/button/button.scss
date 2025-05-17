@@ -1,6 +1,13 @@
+@import "@styles/main.scss";
 .gradient-button {
   width: 100%;
-  background: linear-gradient(to right, #6a49a0, #503077);
+  // background: linear-gradient(to right, #6a49a0, #503077);
+  background: linear-gradient(
+    to right,
+    $base-theme-button-bg,
+    $base-theme-button-bg2
+  );
+
   color: #fff !important;
   border: none;
   border-radius: 9999px !important; /* pill shape */

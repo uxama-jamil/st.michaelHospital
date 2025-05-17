@@ -1,19 +1,34 @@
-import React from 'react'
-import { CFormFloating, CFormInput } from '@coreui/react'
+import React, { useState } from "react";
+import { CFormInput } from "@coreui/react";
+import CIcon from "@coreui/icons-react";
+import "./input.scss";
 
-
-
-const Input = (
-  props
-) => {
-  return (
-    <div className='c-input-container'>
-
-      <CFormInput
-        {...props}
-      />
-    </div>
-  )
+interface InputProps extends React.ComponentProps<typeof CFormInput> {
+  type?: string;
 }
+
+const Input: React.FC<InputProps> = (props) => {
+  const { type = "text", ...rest } = props;
+  const [showPassword, setShowPassword] = useState(false);
+
+  const isPassword = type === "password";
+  const inputType = isPassword && showPassword ? "text" : type;
+
+  return (
+    <div className="c-input-container">
+      <CFormInput type={inputType} {...rest} />
+      {isPassword && (
+        <button
+          type="button"
+          className="input-icon-btn"
+          tabIndex={-1}
+          onClick={() => setShowPassword((v) => !v)}
+        >
+          <CIcon icon={showPassword ? "cil-eye-slash" : "cil-eye"} />
+        </button>
+      )}
+    </div>
+  );
+};
 
 export default Input;

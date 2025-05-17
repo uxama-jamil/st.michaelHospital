@@ -1,20 +1,42 @@
-.c-input-container{
+@import "@styles/main.scss";
 
-  .c-input{
+.c-input-container {
+  position: relative;
+  width: 100%;
+
+  .c-input {
     padding: 10px 14px !important;
   }
   input.form-control {
-      border: 1px solid #737373;
-      box-shadow: none;
-      
-    }
-    
-    input.form-control:focus {
-      // border-color: #a3a3a3;
-      outline: none;
-      box-shadow: none;
-    }
+    border: 1px solid $base-theme-input-border;
+    border-radius: 10px;
+    background: $base-theme-input-bg;
+    font-size: 1rem;
+    font-weight: 400;
+    color: $base-theme-input-text;
+    padding: 12px 44px 12px 16px;
+    box-shadow: none;
+    transition: border-color 0.2s;
+  }
+
+  input.form-control:focus {
+    border-color: $base-theme-input-border;
+    outline: none;
+    box-shadow: none;
+  }
+
+  .input-icon-btn {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: #444;
+    font-size: 1.3rem;
+  }
 }
-
-
-  
