@@ -1,20 +1,19 @@
-@import '@styles/main.scss';
+@import "@styles/colors.scss";
 
 .questionnaire-card {
   border-color: $base-theme-card-border;
-    .card-header {
-      background-color: $base-theme-card-header-bg;
-      color: $base-theme-card-header-text;
-      font-weight: 600;
-      font-size: 0.95rem;
-      border-top-left-radius: 0.5rem;
-      border-top-right-radius: 0.5rem;
-      border-bottom: 1px solid #e0d7f1;
-      padding: 0.75rem 1rem;
-    }
-  
-    .card-body {
-      padding: 1rem;
-    }
+  .card-header {
+    background-color: $base-theme-card-header-bg;
+    color: $base-theme-card-header-text;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    border-bottom: 1px solid #e0d7f1;
+    padding: 0.75rem 1rem;
   }
-  
+
+  .card-body {
+    padding: 1rem;
+  }
+}
