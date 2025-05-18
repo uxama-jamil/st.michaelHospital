@@ -143,34 +143,9 @@ const pagination = {
 
 const ModulesManagement = () => {
   return (
-    // <CContainer fluid className="p-4">
-    //   <CRow>
-    //     <CCol>
-    //       <h4 className="mb-3">
-    //         Modules Management <small className="text-muted">Total: 0</small>
-    //       </h4>
-    //       <CCard className="shadow-sm">
-    //         <CCardBody>
-    //           <div className="d-flex justify-content-end mb-3">
-    //             <CButton color="primary">Add New Module</CButton>
-    //           </div>
-
-    //           <MasterGrid GridData={modulesData} />
-    //         </CCardBody>
-    //       </CCard>
-    //     </CCol>
-    //   </CRow>
-    // </CContainer>
-    // <GenericGrid
-    //   columns={columns}
-    //   data={data}
-    //   actions={actions}
-    //   pagination={pagination}
-    // />
-    // <Questions/>
     <div className="card-sample">
-      <Card header={"Questionnaire details"}>
-        {/* <Questions/> */}
+      {/* <Card header={"Questionnaire details"}>
+       
         <Empty
           heading={"No question added yet"}
           message={"Start managing your question by adding your first one."}
@@ -178,7 +153,29 @@ const ModulesManagement = () => {
           onClick={() => {}}
           btnStyle={{ width: "20%", padding: "16px" }}
         />
-      </Card>
+      </Card> */}
+      <MasterGrid
+        columns={columns}
+        data={data}
+        actions={actions}
+        pagination={pagination}
+      >
+        {/* <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            width: "50%",
+            margin: "0 auto",
+          }}
+        > */}
+        <Empty
+          heading={"No question added yet"}
+          message={"Start managing your question by adding your first one."}
+          buttonText={"Add New Question"}
+          onClick={() => {}}
+        ></Empty>
+        {/* </div> */}
+      </MasterGrid>
     </div>
   );
 };

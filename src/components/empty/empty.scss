@@ -2,6 +2,7 @@
 
 .empty-state {
   display: flex;
+  border: none;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -11,6 +12,7 @@
   img {
     max-width: 180px;
     margin-bottom: 1.5rem;
+    background: transparent;
   }
 
   h5 {
@@ -22,6 +24,7 @@
     font-style: normal;
     font-weight: 600;
     line-height: 25px;
+    background: transparent;
   }
 
   p {
@@ -33,5 +36,6 @@
     font-weight: 500;
     line-height: 21px;
     letter-spacing: -0.175px;
+    background: transparent;
   }
 }

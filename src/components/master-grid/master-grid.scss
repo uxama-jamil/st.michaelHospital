@@ -9,10 +9,12 @@
   letter-spacing: -0.175px !important;
 }
 .master-grid-container {
+  background-color: #fff;
   border-radius: 10px;
   border: 1px solid $base-theme-table-header-border !important;
   height: 80vh;
   table {
+    border: none !important;
     color: $base-theme-text2 !important;
     border: 1px solid $base-theme-table-header-border !important;
     width: 100%;
@@ -23,6 +25,8 @@
       padding: 16px !important;
     }
     thead > tr > th {
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
       background-color: $base-theme-table-header-bg !important;
       border-bottom: 1px solid $base-theme-table-header-border !important;
     }

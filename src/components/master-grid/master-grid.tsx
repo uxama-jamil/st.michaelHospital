@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   CTable,
   CTableHead,
@@ -54,7 +54,16 @@ const KeywordChip = ({ label }) => (
   </CBadge>
 );
 
-const MasterGrid = ({ columns, data, actions, pagination }) => {
+const MasterGrid = ({
+  columns,
+  data,
+  actions,
+  pagination,
+  children = null,
+}) => {
+  useEffect(() => {
+    console.log(data);
+  }, [data]);
   return (
     <div className="master-grid-container">
       <CTable align="middle" className="mb-0 border" hover responsive>
@@ -76,43 +85,47 @@ const MasterGrid = ({ columns, data, actions, pagination }) => {
           </CTableRow>
         </CTableHead>
         <CTableBody>
-          {data.map((row, idx) => (
-            <CTableRow key={idx}>
-              {columns.map((col) => (
-                <CTableDataCell key={col.key} style={{ fontSize: 15 }}>
-                  {col.render
-                    ? col.render(row[col.key], row)
-                    : Array.isArray(row[col.key])
-                    ? row[col.key].map((item, i) => (
-                        <KeywordChip key={i} label={item} />
-                      ))
-                    : row[col.key]}
-                </CTableDataCell>
-              ))}
-              {actions && (
-                <CTableDataCell>
-                  {actions.map((action, i) => (
-                    <CButton
-                      key={i}
-                      color="light"
-                      size="sm"
-                      style={{
-                        marginRight: 8,
-                        borderRadius: 6,
-                        boxShadow: "none",
-                      }}
-                      onClick={() => action.onClick(row)}
-                    >
-                      {action.icon}
-                      {action.label && (
-                        <span style={{ marginLeft: 4 }}>{action.label}</span>
-                      )}
-                    </CButton>
+          {data.length > 0
+            ? data.map((row, idx) => (
+                <CTableRow key={idx}>
+                  {columns.map((col) => (
+                    <CTableDataCell key={col.key} style={{ fontSize: 15 }}>
+                      {col.render
+                        ? col.render(row[col.key], row)
+                        : Array.isArray(row[col.key])
+                        ? row[col.key].map((item, i) => (
+                            <KeywordChip key={i} label={item} />
+                          ))
+                        : row[col.key]}
+                    </CTableDataCell>
                   ))}
-                </CTableDataCell>
-              )}
-            </CTableRow>
-          ))}
+                  {actions && (
+                    <CTableDataCell>
+                      {actions.map((action, i) => (
+                        <CButton
+                          key={i}
+                          color="light"
+                          size="sm"
+                          style={{
+                            marginRight: 8,
+                            borderRadius: 6,
+                            boxShadow: "none",
+                          }}
+                          onClick={() => action.onClick(row)}
+                        >
+                          {action.icon}
+                          {action.label && (
+                            <span style={{ marginLeft: 4 }}>
+                              {action.label}
+                            </span>
+                          )}
+                        </CButton>
+                      ))}
+                    </CTableDataCell>
+                  )}
+                </CTableRow>
+              ))
+            : children}
         </CTableBody>
       </CTable>
       {/* Pagination */}
