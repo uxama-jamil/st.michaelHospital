@@ -85,7 +85,10 @@ const Sidebar = () => {
           Playlist
         </button>
       </nav>
-      <div className="sidebar-reset">
+      <div
+        className="sidebar-reset"
+        onClick={() => navigate("/reset-password")}
+      >
         <img src={lock} alt="lock" className="reset-icon" />
         Reset Password
       </div>

@@ -6,6 +6,7 @@ interface ButtonProps {
   text?: string;
   type?: "button" | "submit" | "reset";
   onClick?: () => void;
+  style?: React.CSSProperties;
   disabled?: boolean;
   className?: string;
   children?: React.ReactNode;
@@ -16,6 +17,7 @@ const Button: React.FC<ButtonProps> = ({
   type = "button",
   onClick,
   disabled = false,
+  style,
   className = "",
   children,
 }) => {
@@ -29,6 +31,7 @@ const Button: React.FC<ButtonProps> = ({
       type={type}
       onClick={onClick}
       disabled={disabled}
+      style={style}
       className={`${buttonTypeClass}${
         className ? " " + className : ""
       } montserrat main-button`}

@@ -71,7 +71,8 @@ import CIcon from "@coreui/icons-react";
 import { cilPencil, cilTrash, cilArrowRight, cilReload } from "@coreui/icons";
 import { Questions } from "@/features/module/content/add-content/questions/questions";
 import { Card } from "@components/card/card";
-import './module.scss'
+import "./module.scss";
+import { Empty } from "@/components/empty/empty";
 
 const columns = [
   { key: "name", label: "Playlist Name" },
@@ -168,8 +169,15 @@ const ModulesManagement = () => {
     // />
     // <Questions/>
     <div className="card-sample">
-      <Card header={'Questionnaire details'}>
-        <Questions/>
+      <Card header={"Questionnaire details"}>
+        {/* <Questions/> */}
+        <Empty
+          heading={"No question added yet"}
+          message={"Start managing your question by adding your first one."}
+          buttonText={"Add New Question"}
+          onClick={() => {}}
+          btnStyle={{ width: "20%", padding: "16px" }}
+        />
       </Card>
     </div>
   );

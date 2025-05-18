@@ -1,13 +1,11 @@
-import { CCard, CCardBody, CCardHeader } from '@coreui/react'
-import './card.scss'
+import { CCard, CCardBody, CCardHeader } from "@coreui/react";
+import "./card.scss";
 
-export const Card = ({header, children}) => {
-    return (
-        <CCard className="questionnaire-card">
-            <CCardHeader>{header}</CCardHeader>
-            <CCardBody className="card-body">
-                {children}
-            </CCardBody>
-        </CCard>
-    )
-}
+export const Card = ({ header, children }) => {
+  return (
+    <CCard className="card-wrapper">
+      <CCardHeader>{header}</CCardHeader>
+      <CCardBody className="card-body">{children}</CCardBody>
+    </CCard>
+  );
+};
