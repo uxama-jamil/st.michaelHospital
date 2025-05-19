@@ -1,10 +1,12 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { lazy } from "react";
+import { HeaderProvider } from "@/context/HeaderContext";
 
 const AuthLayout = lazy(() => import("@/features/auth-layout/auth-layout"));
 const Login = lazy(() => import("@/features/auth-layout/login/login"));
 const Layout = lazy(() => import("@/features/layout/layout"));
 const Module = lazy(() => import("@/features/module/module"));
+const AddModule = lazy(() => import("@/features/module/add-module/add-module"));
 const Content = lazy(() => import("@/features/module/content/content"));
 const AddContent = lazy(
   () => import("@/features/module/content/add-content/add-content")
@@ -36,14 +38,20 @@ export const AppRoutes = [
   },
   {
     element: (
-      <Layout>
-        <Outlet />
-      </Layout>
+      <HeaderProvider>
+        <Layout>
+          <Outlet />
+        </Layout>
+      </HeaderProvider>
     ),
     children: [
       {
         path: "/module",
         element: <Module />,
+      },
+      {
+        path: "/add-module",
+        element: <AddModule />,
       },
       {
         path: "/content",

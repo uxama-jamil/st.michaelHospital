@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   CContainer,
   CRow,
@@ -73,6 +73,9 @@ import { Questions } from "@/features/module/content/add-content/questions/quest
 import { Card } from "@components/card/card";
 import "./module.scss";
 import { Empty } from "@/components/empty/empty";
+import Button from "@/components/button/button";
+import { useHeader } from "@/context/HeaderContext";
+import { useNavigate } from "react-router-dom";
 
 const columns = [
   { key: "name", label: "Playlist Name" },
@@ -136,6 +139,19 @@ const actions = [
 ];
 
 const ModulesManagement = () => {
+  const { setTitle, setSubtitle, setActions } = useHeader();
+  const navigate = useNavigate();
+  useEffect(() => {
+    setTitle("Modules Management");
+    setSubtitle("Total: 6");
+    setActions([
+      <Button
+        key="add"
+        text="Add New Module"
+        onClick={() => navigate("/add-module")}
+      />,
+    ]);
+  }, []);
   return (
     <>
       <div className="card-sample">
