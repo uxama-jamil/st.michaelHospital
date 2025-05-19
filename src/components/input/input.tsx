@@ -8,7 +8,7 @@ interface InputProps extends React.ComponentProps<typeof CFormInput> {
 }
 
 const Input: React.FC<InputProps> = (props) => {
-  const { type = "text", ...rest } = props;
+  const { type = "text", label = "", ...rest } = props;
   const [showPassword, setShowPassword] = useState(false);
 
   const isPassword = type === "password";
@@ -16,17 +16,25 @@ const Input: React.FC<InputProps> = (props) => {
 
   return (
     <div className="c-input-container">
-      <CFormInput type={inputType} {...rest} />
-      {isPassword && (
-        <button
-          type="button"
-          className="input-icon-btn"
-          tabIndex={-1}
-          onClick={() => setShowPassword((v) => !v)}
-        >
-          <img src={eye} alt="eye" />
-        </button>
+      {label && (
+        <label className="c-input-label">
+          {label}
+          {props.required && <span className="required-asterisk">*</span>}
+        </label>
       )}
+      <div className="c-input-container-input">
+        <CFormInput type={inputType} {...rest} />
+        {isPassword && (
+          <button
+            type="button"
+            className="input-icon-btn"
+            tabIndex={-1}
+            onClick={() => setShowPassword((v) => !v)}
+          >
+            <img src={eye} alt="eye" />
+          </button>
+        )}
+      </div>
     </div>
   );
 };

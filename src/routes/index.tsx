@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { lazy } from "react";
-import { HeaderProvider } from "@/context/HeaderContext";
+import { HeaderProvider } from "@/context/headerContext";
 
 const AuthLayout = lazy(() => import("@/features/auth-layout/auth-layout"));
 const Login = lazy(() => import("@/features/auth-layout/login/login"));

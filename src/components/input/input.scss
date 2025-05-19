@@ -1,11 +1,20 @@
 @import "@styles/colors.scss";
 
 .c-input-container {
-  position: relative;
+  font-family: "Montserrat", sans-serif;
   width: 100%;
 
+  .c-input-container-input {
+    position: relative;
+  }
   .c-input {
     padding: 10px 14px !important;
+  }
+  .c-input-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $base-theme-input-label;
+    margin-bottom: 9px;
   }
   input.form-control {
     border: 1px solid $base-theme-input-border;
@@ -39,4 +48,8 @@
     color: #444;
     font-size: 1.3rem;
   }
+}
+
+.required-asterisk {
+  color: red;
 }
