@@ -1,0 +1,73 @@
+@import "@/styles/colors.scss";
+
+.c-header-container {
+  background: $base-theme-header-bg;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  padding: 24px 32px 12px 32px;
+  box-shadow: 0 0 0 1px #eee;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.5rem;
+}
+.c-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+}
+.c-header-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.c-header-title-row {
+  // position: relative;
+  display: flex;
+  // align-items: center;
+  gap: 0.5rem;
+}
+.c-header-title {
+  font-family: "Poppins", sans-serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  line-height: 1.68rem;
+  color: $base-theme-header-text;
+  margin-right: 0.6rem;
+}
+.c-header-subtitle {
+  align-self: flex-end;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.8rem;
+  color: $base-theme-header-subtitle;
+  font-weight: 600;
+  line-height: 0.75rem;
+}
+.c-header-breadcrumbs {
+  margin-top: 0.25rem;
+  font-size: 0.81rem;
+  line-height: 1.12rem;
+  color: $base-theme-header-subtitle;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 500;
+}
+.c-header-breadcrumb {
+  color: $base-theme-header-subtitle;
+  font-weight: 500;
+  &.active {
+    color: $base-theme-header-text;
+    font-weight: 700;
+  }
+}
+.c-header-breadcrumb-sep {
+  margin: 0 0.5rem;
+  color: $base-theme-header-subtitle;
+}
+.c-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  &.right {
+    justify-content: flex-end;
+  }
+}

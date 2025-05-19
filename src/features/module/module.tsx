@@ -135,16 +135,11 @@ const actions = [
   },
 ];
 
-const pagination = {
-  currentPage: 1,
-  totalPages: 3,
-  onPageChange: (page) => alert(`Go to page ${page}`),
-};
-
 const ModulesManagement = () => {
   return (
-    <div className="card-sample">
-      {/* <Card header={"Questionnaire details"}>
+    <>
+      <div className="card-sample">
+        {/* <Card header={"Questionnaire details"}>
        
         <Empty
           heading={"No question added yet"}
@@ -154,13 +149,8 @@ const ModulesManagement = () => {
           btnStyle={{ width: "20%", padding: "16px" }}
         />
       </Card> */}
-      <MasterGrid
-        columns={columns}
-        data={data}
-        actions={actions}
-        pagination={pagination}
-      >
-        {/* <div
+        <MasterGrid columns={columns} data={data} actions={actions}>
+          {/* <div
           style={{
             display: "flex",
             justifyContent: "center",
@@ -168,15 +158,16 @@ const ModulesManagement = () => {
             margin: "0 auto",
           }}
         > */}
-        <Empty
-          heading={"No question added yet"}
-          message={"Start managing your question by adding your first one."}
-          buttonText={"Add New Question"}
-          onClick={() => {}}
-        ></Empty>
-        {/* </div> */}
-      </MasterGrid>
-    </div>
+          <Empty
+            heading={"No question added yet"}
+            message={"Start managing your question by adding your first one."}
+            buttonText={"Add New Question"}
+            onClick={() => {}}
+          />
+          {/* </div> */}
+        </MasterGrid>
+      </div>
+    </>
   );
 };
 

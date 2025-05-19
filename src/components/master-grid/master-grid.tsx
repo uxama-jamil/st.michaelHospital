@@ -13,6 +13,9 @@ import {
 } from "@coreui/react";
 import CIcon from "@coreui/icons-react";
 import { cilPencil, cilTrash, cilArrowRight, cilReload } from "@coreui/icons";
+import EditIcon from "@assets/svg/edit.svg";
+import DeleteIcon from "@assets/svg/trash.svg";
+import ChevronRightIcon from "@assets/svg/chevron-right.svg";
 import "./master-grid.scss";
 
 // Custom badge for status
@@ -54,13 +57,7 @@ const KeywordChip = ({ label }) => (
   </CBadge>
 );
 
-const MasterGrid = ({
-  columns,
-  data,
-  actions,
-  pagination,
-  children = null,
-}) => {
+const MasterGrid = ({ columns, data, actions, children = null }) => {
   useEffect(() => {
     console.log(data);
   }, [data]);
@@ -128,52 +125,6 @@ const MasterGrid = ({
             : children}
         </CTableBody>
       </CTable>
-      {/* Pagination */}
-      {pagination && (
-        <div
-          style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}
-        >
-          <CPagination align="end">
-            <CPaginationItem
-              disabled={pagination.currentPage === 1}
-              onClick={() => pagination.onPageChange(1)}
-            >
-              &lt;&lt;
-            </CPaginationItem>
-            <CPaginationItem
-              disabled={pagination.currentPage === 1}
-              onClick={() =>
-                pagination.onPageChange(pagination.currentPage - 1)
-              }
-            >
-              &lt;
-            </CPaginationItem>
-            {[...Array(pagination.totalPages)].map((_, i) => (
-              <CPaginationItem
-                key={i}
-                active={pagination.currentPage === i + 1}
-                onClick={() => pagination.onPageChange(i + 1)}
-              >
-                {i + 1}
-              </CPaginationItem>
-            ))}
-            <CPaginationItem
-              disabled={pagination.currentPage === pagination.totalPages}
-              onClick={() =>
-                pagination.onPageChange(pagination.currentPage + 1)
-              }
-            >
-              &gt;
-            </CPaginationItem>
-            <CPaginationItem
-              disabled={pagination.currentPage === pagination.totalPages}
-              onClick={() => pagination.onPageChange(pagination.totalPages)}
-            >
-              &gt;&gt;
-            </CPaginationItem>
-          </CPagination>
-        </div>
-      )}
     </div>
   );
 };
