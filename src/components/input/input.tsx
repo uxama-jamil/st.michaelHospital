@@ -5,6 +5,7 @@ import "./input.scss";
 
 interface InputProps extends React.ComponentProps<typeof CFormInput> {
   type?: string;
+  eye?: boolean;
 }
 
 const Input: React.FC<InputProps> = (props) => {
