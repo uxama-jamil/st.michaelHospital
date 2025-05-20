@@ -1,0 +1,10 @@
+@import "@styles/colors.scss";
+.c-dropdown-container {
+  font-family: "Montserrat", sans-serif;
+
+  .c-dropdown-label {
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    color: $base-theme-input-label !important;
+  }
+}

@@ -27,21 +27,36 @@ const Sidebar = () => {
     resetPassword: false,
   });
   useEffect(() => {
-    if (location.pathname === "/module") {
+    if (
+      [
+        "/module",
+        "/add-module",
+        "/edit-module",
+        "/content",
+        "/add-content",
+        "/edit-content",
+      ].includes(location.pathname)
+    ) {
       setActive({
         module: true,
         user: false,
         playlist: false,
         resetPassword: false,
       });
-    } else if (location.pathname === "/user") {
+    } else if (
+      ["/user", "/add-user", "/edit-user"].includes(location.pathname)
+    ) {
       setActive({
         module: false,
         user: true,
         playlist: false,
         resetPassword: false,
       });
-    } else if (location.pathname === "/playlist") {
+    } else if (
+      ["/playlist", "/add-playlist", "/edit-playlist"].includes(
+        location.pathname
+      )
+    ) {
       setActive({
         module: false,
         user: false,
