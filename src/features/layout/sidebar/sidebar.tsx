@@ -28,11 +28,26 @@ const Sidebar = () => {
   });
   useEffect(() => {
     if (location.pathname === "/module") {
-      setActive({ module: true, user: false, playlist: false });
+      setActive({
+        module: true,
+        user: false,
+        playlist: false,
+        resetPassword: false,
+      });
     } else if (location.pathname === "/user") {
-      setActive({ module: false, user: true, playlist: false });
+      setActive({
+        module: false,
+        user: true,
+        playlist: false,
+        resetPassword: false,
+      });
     } else if (location.pathname === "/playlist") {
-      setActive({ module: false, user: false, playlist: true });
+      setActive({
+        module: false,
+        user: false,
+        playlist: true,
+        resetPassword: false,
+      });
     } else if (location.pathname === "/reset-password") {
       setActive({
         module: false,
@@ -44,13 +59,28 @@ const Sidebar = () => {
   }, [location.pathname]);
   const handleNav = (nav: string) => {
     if (nav === "module") {
-      setActive({ module: true, user: false, playlist: false });
+      setActive({
+        module: true,
+        user: false,
+        playlist: false,
+        resetPassword: false,
+      });
       navigate("/module");
     } else if (nav === "user") {
-      setActive({ module: false, user: true, playlist: false });
+      setActive({
+        module: false,
+        user: true,
+        playlist: false,
+        resetPassword: false,
+      });
       navigate("/user");
     } else if (nav === "playlist") {
-      setActive({ module: false, user: false, playlist: true });
+      setActive({
+        module: false,
+        user: false,
+        playlist: true,
+        resetPassword: false,
+      });
       navigate("/playlist");
     } else if (nav === "resetPassword") {
       setActive({
@@ -129,7 +159,14 @@ const Sidebar = () => {
           <div className="profile-name">Culaccino_CCN</div>
           <div className="profile-username">@marry_jane</div>
         </div>
-        <img src={logout} alt="logout" className="logout-icon" />
+        <img
+          src={logout}
+          alt="logout"
+          className="logout-icon"
+          onClick={() => {
+            navigate("/login");
+          }}
+        />
       </div>
     </div>
   );

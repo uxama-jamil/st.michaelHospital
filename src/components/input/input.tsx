@@ -1,15 +1,22 @@
 import React, { useState } from "react";
-import { CFormInput } from "@coreui/react";
+import { CFormInput, CFormTextarea } from "@coreui/react";
 import eyeIcon from "@assets/svg/eye.svg";
 import "./input.scss";
 
 interface InputProps extends React.ComponentProps<typeof CFormInput> {
   type?: string;
   eye?: boolean;
+  textArea?: boolean;
 }
 
 const Input: React.FC<InputProps> = (props) => {
-  const { type = "text", label = "", eye = false, ...rest } = props;
+  const {
+    type = "text",
+    label = "",
+    eye = false,
+    textArea = false,
+    ...rest
+  } = props;
   const [showPassword, setShowPassword] = useState(false);
 
   const isPassword = type === "password" && eye;
@@ -24,7 +31,11 @@ const Input: React.FC<InputProps> = (props) => {
         </label>
       )}
       <div className="c-input-container-input">
-        <CFormInput type={inputType} {...rest} />
+        {textArea ? (
+          <CFormTextarea {...rest} rows={4} />
+        ) : (
+          <CFormInput type={inputType} {...rest} />
+        )}
         {isPassword && (
           <button
             type="button"

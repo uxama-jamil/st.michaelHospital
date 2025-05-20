@@ -1,4 +1,4 @@
-import React from "react";
+import React, { type ReactNode } from "react";
 import "./Header.scss";
 
 interface Breadcrumb {
@@ -9,7 +9,7 @@ interface Breadcrumb {
 
 interface HeaderProps {
   title: string;
-  subtitle?: string;
+  subtitle?: string | ReactNode;
   breadcrumbs?: Breadcrumb[];
   actions?: React.ReactNode[];
   children?: React.ReactNode;

@@ -2,14 +2,13 @@
 
 .card-wrapper {
   border-color: $base-theme-card-border;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
   .card-header {
     background-color: $base-theme-card-header-bg;
     color: $base-theme-card-header-text;
     font-weight: 600;
     font-size: 0.95rem;
-    border-top-left-radius: 0.5rem;
-    border-top-right-radius: 0.5rem;
-    border-bottom: 1px solid #e0d7f1;
+    border-bottom: 1px solid $base-theme-card-border;
     padding: 0.75rem 1rem;
   }
 

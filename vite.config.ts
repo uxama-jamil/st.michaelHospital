@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import path from "path";
 import { fileURLToPath } from "url";
+import checker from "vite-plugin-checker";
 import { dirname } from "path";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -18,5 +19,5 @@ export default defineConfig({
       "@assets": path.resolve(__dirname, "./src/assets"),
     },
   },
-  plugins: [react(), tsconfigPaths()],
+  plugins: [react(), tsconfigPaths(), checker({ typescript: true })],
 });

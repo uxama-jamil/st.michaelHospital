@@ -1,0 +1,37 @@
+.custom-pagination {
+  display: flex;
+  gap: 8px;
+  .page-item {
+    .page-link {
+      border-radius: 8px !important;
+      border: 1px solid #e5e6eb;
+      color: #5b2e91;
+      background: #fff;
+      font-weight: 500;
+      font-size: 1.1rem;
+      min-width: 40px;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, color 0.2s;
+    }
+    &.active .page-link {
+      background: #7c4dce !important;
+      color: #fff !important;
+      border: none;
+      box-shadow: none;
+      border-radius: 12px !important;
+    }
+    &.disabled .page-link {
+      background: #e5e6eb !important;
+      color: #b0b0b0 !important;
+      border: none;
+      cursor: not-allowed;
+    }
+    &:not(.active):not(.disabled) .page-link:hover {
+      background: #f3eaff;
+      color: #5b2e91;
+    }
+  }
+}

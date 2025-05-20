@@ -16,7 +16,8 @@
     color: $base-theme-input-label;
     margin-bottom: 9px;
   }
-  input.form-control {
+  input.form-control,
+  textarea.form-control {
     border: 1px solid $base-theme-input-border;
     border-radius: 10px;
     background: $base-theme-input-bg;
@@ -28,7 +29,8 @@
     transition: border-color 0.2s;
   }
 
-  input.form-control:focus {
+  input.form-control:focus,
+  textarea.form-control:focus {
     border-color: $base-theme-input-border;
     outline: none;
     box-shadow: none;

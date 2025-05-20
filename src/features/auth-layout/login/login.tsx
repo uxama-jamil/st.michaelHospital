@@ -1,9 +1,10 @@
 import Input from "@components/input/input";
 import Button from "@components/button/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./login.scss";
 
 const Login = () => {
+  const navigate = useNavigate();
   return (
     <div className="login-box">
       <div className="form-title">Sign In</div>
@@ -29,7 +30,14 @@ const Login = () => {
             Forgot password?
           </Link>
         </div>
-        <Button type="submit" className="mt-2" text="Sign In" />
+        <Button
+          type="submit"
+          className="mt-2"
+          text="Sign In"
+          onClick={() => {
+            navigate("/module");
+          }}
+        />
       </form>
     </div>
   );

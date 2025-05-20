@@ -1,0 +1,15 @@
+.add-module-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  .card-wrapper {
+    width: 80%;
+    height: 80vh;
+  }
+  .module-details-container {
+    display: flex;
+
+    gap: 1rem;
+  }
+}

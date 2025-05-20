@@ -74,8 +74,9 @@ import { Card } from "@components/card/card";
 import "./module.scss";
 import { Empty } from "@/components/empty/empty";
 import Button from "@/components/button/button";
-import { useHeader } from "@/context/HeaderContext";
+import { useHeader } from "@/context/headerContext";
 import { useNavigate } from "react-router-dom";
+import Pagination from "@/components/pagination/Pagination";
 
 const columns = [
   { key: "name", label: "Playlist Name" },
@@ -139,18 +140,20 @@ const actions = [
 ];
 
 const ModulesManagement = () => {
-  const { setTitle, setSubtitle, setActions } = useHeader();
+  const { setTitle, setSubtitle, setActions, setBreadcrumbs } = useHeader();
   const navigate = useNavigate();
   useEffect(() => {
     setTitle("Modules Management");
-    setSubtitle("Total: 6");
+    setSubtitle("");
     setActions([
       <Button
         key="add"
         text="Add New Module"
         onClick={() => navigate("/add-module")}
+        style={{ width: "100%" }}
       />,
     ]);
+    setBreadcrumbs([]);
   }, []);
   return (
     <>
@@ -183,6 +186,14 @@ const ModulesManagement = () => {
           {/* </div> */}
         </MasterGrid>
       </div>
+      <Pagination
+        currentPage={1}
+        totalPages={10}
+        onPageChange={(page) => {
+          console.log(`page ${page}`);
+          /* handle page change */
+        }}
+      />
     </>
   );
 };
