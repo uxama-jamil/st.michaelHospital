@@ -1,4 +1,4 @@
-@import "../../styles/colors.scss";
+@import "@styles/colors.scss";
 
 .login-wrapper {
   display: flex;
@@ -72,21 +72,26 @@
     }
 
     .login-box {
+      font-family: "Montserrat", sans-serif;
       background: white;
       border-radius: 1rem;
-      padding: 2.8rem;
+      padding: 2rem;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
       max-width: 408px;
       width: 100%;
 
       .form-title {
+        color: $base-theme-text2;
         font-weight: 600;
-        font-size: 1.5rem;
+        font-size: 1.875rem;
         margin-bottom: 1rem;
       }
 
       .form-subtitle {
-        color: #6c757d;
+        font-size: 1rem;
+        font-style: normal;
+        font-weight: 500;
+        color: $base-theme-text;
         margin-bottom: 1.5rem;
       }
 

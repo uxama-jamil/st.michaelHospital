@@ -1,7 +1,7 @@
-import Input from "@component/input/input";
-import Button from "@component/button/button";
+import Input from "@components/input/input";
+import Button from "@components/button/button";
 import { Link } from "react-router-dom";
-import './login.scss'
+import "./login.scss";
 
 const Login = () => {
   return (
@@ -12,7 +12,12 @@ const Login = () => {
       </div>
       <form>
         <Input placeholder="Email" className="mb-3" />
-        <Input type="password" placeholder="Password" className="mb-2" />
+        <Input
+          type="password"
+          placeholder="Password"
+          className="mb-2"
+          eye={true}
+        />
         <div
           style={{
             display: "flex",

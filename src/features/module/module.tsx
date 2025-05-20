@@ -14,7 +14,7 @@ import {
   CImage,
 } from "@coreui/react";
 import "@coreui/coreui/dist/css/coreui.min.css";
-import MasterGrid from "@component/master-grid/master-grid";
+import MasterGrid from "@components/master-grid/master-grid";
 
 const modulesData = [
   {
@@ -66,7 +66,7 @@ const modulesData = [
     status: "Draft",
   },
 ];
-import GenericGrid, { StatusBadge, KeywordChip } from "@component/GenericGrid";
+import GenericGrid, { StatusBadge, KeywordChip } from "@components/GenericGrid";
 import CIcon from "@coreui/icons-react";
 import { cilPencil, cilTrash, cilArrowRight, cilReload } from "@coreui/icons";
 import { Questions } from "@/features/module/content/add-content/questions/questions";

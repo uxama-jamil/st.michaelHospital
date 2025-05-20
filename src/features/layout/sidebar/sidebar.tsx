@@ -14,6 +14,7 @@ import playlist_active from "@assets/svg/playlist-active.svg";
 import module_active from "@assets/svg/module-active.svg";
 import logout from "@assets/svg/logout.svg";
 import lock from "@assets/svg/lock.svg";
+import lock_active from "@assets/svg/lock-active.svg";
 import "./sidebar.scss";
 import { useNavigate, useLocation } from "react-router-dom";
 const Sidebar = () => {
@@ -23,6 +24,7 @@ const Sidebar = () => {
     module: false,
     user: false,
     playlist: false,
+    resetPassword: false,
   });
   useEffect(() => {
     if (location.pathname === "/module") {
@@ -31,6 +33,13 @@ const Sidebar = () => {
       setActive({ module: false, user: true, playlist: false });
     } else if (location.pathname === "/playlist") {
       setActive({ module: false, user: false, playlist: true });
+    } else if (location.pathname === "/reset-password") {
+      setActive({
+        module: false,
+        user: false,
+        playlist: false,
+        resetPassword: true,
+      });
     }
   }, [location.pathname]);
   const handleNav = (nav: string) => {
@@ -43,6 +52,14 @@ const Sidebar = () => {
     } else if (nav === "playlist") {
       setActive({ module: false, user: false, playlist: true });
       navigate("/playlist");
+    } else if (nav === "resetPassword") {
+      setActive({
+        module: false,
+        user: false,
+        playlist: false,
+        resetPassword: true,
+      });
+      navigate("/reset-password");
     }
   };
   return (
@@ -50,6 +67,7 @@ const Sidebar = () => {
       <div className="sidebar-header">
         <h2>MyEndo</h2>
       </div>
+
       <nav className="sidebar-nav">
         <button
           className={`nav-item ${active.module ? "active" : ""}`}
@@ -85,13 +103,20 @@ const Sidebar = () => {
           Playlist
         </button>
       </nav>
-      <div
-        className="sidebar-reset"
-        onClick={() => navigate("/reset-password")}
-      >
-        <img src={lock} alt="lock" className="reset-icon" />
-        Reset Password
+      <div className="rp-container" style={{ padding: "0 16px" }}>
+        <div
+          className={`sidebar-reset ${active.resetPassword ? "active" : ""}`}
+          onClick={() => handleNav("resetPassword")}
+        >
+          <img
+            src={active.resetPassword ? lock_active : lock}
+            alt="lock"
+            className="reset-icon"
+          />
+          Reset Password
+        </div>
       </div>
+
       <div className="sidebar-profile">
         <img
           src="https://placehold.co/48x48"

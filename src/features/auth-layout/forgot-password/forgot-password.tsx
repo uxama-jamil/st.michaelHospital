@@ -1,6 +1,6 @@
 import React from "react";
-import Input from "@component/input/input";
-import Button from "@component/button/button";
+import Input from "@components/input/input";
+import Button from "@components/button/button";
 import { Link } from "react-router-dom";
 import "./forgot-password.scss";
 

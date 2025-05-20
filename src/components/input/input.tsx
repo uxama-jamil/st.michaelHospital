@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { CFormInput } from "@coreui/react";
-import eye from "@assets/svg/eye.svg";
+import eyeIcon from "@assets/svg/eye.svg";
 import "./input.scss";
 
 interface InputProps extends React.ComponentProps<typeof CFormInput> {
@@ -8,10 +8,10 @@ interface InputProps extends React.ComponentProps<typeof CFormInput> {
 }
 
 const Input: React.FC<InputProps> = (props) => {
-  const { type = "text", label = "", ...rest } = props;
+  const { type = "text", label = "", eye = false, ...rest } = props;
   const [showPassword, setShowPassword] = useState(false);
 
-  const isPassword = type === "password";
+  const isPassword = type === "password" && eye;
   const inputType = isPassword && showPassword ? "text" : type;
 
   return (
@@ -31,7 +31,7 @@ const Input: React.FC<InputProps> = (props) => {
             tabIndex={-1}
             onClick={() => setShowPassword((v) => !v)}
           >
-            <img src={eye} alt="eye" />
+            <img src={eyeIcon} alt="eye" />
           </button>
         )}
       </div>

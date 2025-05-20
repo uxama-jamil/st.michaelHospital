@@ -1,6 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { lazy } from "react";
 import { HeaderProvider } from "@/context/headerContext";
+import EmailSent from "@/features/auth-layout/forgot-password/email-sent/email-sent";
 
 const AuthLayout = lazy(() => import("@/features/auth-layout/auth-layout"));
 const Login = lazy(() => import("@/features/auth-layout/login/login"));
@@ -24,8 +25,11 @@ const Playlist = lazy(() => import("@/features/playlist/playlist"));
 const ForgotPassword = lazy(
   () => import("@/features/auth-layout/forgot-password/forgot-password")
 );
+const SetPassword = lazy(
+  () => import("@/features/auth-layout/set-password/set-password")
+);
 const ResetPassword = lazy(
-  () => import("@/features/auth-layout/reset-password/reset-password")
+  () => import("@/features/reset-password/reset-password")
 );
 export const AppRoutes = [
   {
@@ -92,6 +96,22 @@ export const AppRoutes = [
     element: (
       <AuthLayout>
         <ForgotPassword />
+      </AuthLayout>
+    ),
+  },
+  {
+    path: "/email-sent",
+    element: (
+      <AuthLayout>
+        <EmailSent />
+      </AuthLayout>
+    ),
+  },
+  {
+    path: "/set-password",
+    element: (
+      <AuthLayout>
+        <SetPassword />
       </AuthLayout>
     ),
   },

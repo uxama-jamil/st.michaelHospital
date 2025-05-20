@@ -27,7 +27,7 @@ const HeaderContext = createContext<HeaderContextType | undefined>(undefined);
 
 export const useHeader = () => {
   const ctx = useContext(HeaderContext);
-  // if (!ctx) throw new Error("useHeader must be used within a HeaderProvider");
+  if (!ctx) throw new Error("useHeader must be used within a HeaderProvider");
   return ctx;
 };
 
