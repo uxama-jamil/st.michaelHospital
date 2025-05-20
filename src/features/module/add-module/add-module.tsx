@@ -15,10 +15,6 @@ const AddModule = () => {
   });
   const navigate = useNavigate();
 
-  //   const handleSave = useCallback(() => {
-  //     console.log("Saved data:", moduleDetails);
-  //   }, [moduleDetails]);
-
   useEffect(() => {
     setTitle("New Module");
     setActions([
