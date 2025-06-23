@@ -1,0 +1,38 @@
+.button {
+  font-family: $font-montserrat;
+  font-weight: $font-medium;
+  background: $button-bg;
+
+  &.ant-btn-lg {
+    font-size: toRem(16);
+  }
+
+  &.primaryButton {
+    background: $button-bg;
+  }
+
+  &.secondaryButton {
+    background: $published-color;
+    color: $primary-color;
+    &:disabled {
+      background: $publish-button-disabled-bg;
+      color: $publish-button-disabled-color;
+      cursor: not-allowed;
+    }
+  }
+  &.secondaryWhiteButton {
+    background: $base-white;
+    color: $base-text;
+    border-color: $border-color;
+  }
+
+  &.defaultButton {
+    background: $secondary-button;
+    border-color: $secondary-button;
+    color: $base-text;
+  }
+  &:disabled {
+    background: $base-grey;
+    color: $base-text;
+  }
+}

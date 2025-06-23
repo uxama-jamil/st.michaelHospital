@@ -1,0 +1,62 @@
+@mixin scrollbars() {
+
+  // For Google Chrome
+  &::-webkit-scrollbar {
+    width: toRem(8);
+    height: toRem(8);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    // background-color: $scrollbar-thumb;
+    -webkit-box-shadow: none;
+    border-radius: toRem(2);
+  }
+
+  &::-webkit-scrollbar-track {
+    -webkit-box-shadow: none;
+    // background-color: $scrollbar-bg;
+    border-radius: toRem(2);
+  }
+
+  // For Internet Explorer
+  & {
+    //  scrollbar-face-color: $scrollbar-thumb;
+    //  scrollbar-track-color: $scrollbar-bg;
+  }
+}
+
+@mixin transition {
+  transition: all 0.3s ease;
+  -webkit-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+}
+
+// Cross-browser compatible mixin
+@mixin placeholder {
+  &::placeholder {
+    @content;
+  }
+
+  // Modern browsers
+  &::-webkit-input-placeholder {
+    @content;
+  }
+
+  // Chrome/Safari
+  &::-moz-placeholder {
+    @content;
+  }
+
+  // Firefox 19+
+  &:-ms-input-placeholder {
+    @content;
+  }
+
+  // IE 10+
+  &:-moz-placeholder {
+    @content;
+  }
+
+  // Firefox 18-
+}

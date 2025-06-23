@@ -1,0 +1,33 @@
+/* Tag.module.scss */
+.tag {
+  font-size: toRem(13);
+  font-weight: $font-medium;
+  padding: toRem(4) toRem(14);
+  line-height: normal;
+}
+
+.success {
+  background-color: $success-color;
+  color: $base-text;
+}
+
+.secondary {
+  background-color: $info-color;
+  color: $base-text;
+}
+
+.error {
+  background-color: $base-danger;
+  color: $base-white;
+}
+
+.warning {
+  background-color: $warning-color;
+  color: $base-text;
+  border-color: $warning-color;
+}
+
+.primary {
+  background: $button-bg;
+  color: $base-white;
+}

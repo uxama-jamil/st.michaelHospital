@@ -1,0 +1,39 @@
+$font-montserrat: 'Montserrat', sans-serif;
+$font-open-sans: 'Open Sans', sans-serif;
+
+// Font Weights
+$font-regular: 400;
+$font-medium: 500;
+$font-semibold: 600;
+$font-bold: 700;
+
+// Colors
+$base-white: #ffffff;
+$base-text: #010101;
+$base-grey: #f3f3f3;
+$input-bg: #fdfdfd;
+$base-danger: #dd656d;
+$primary-color: #563d81;
+$border-color: #ebebeb;
+$warning-color: #f5b642;
+$success-color: #8bd793;
+$keyword-color: #f0f0f0;
+$card-header-bg: #f8f6fb;
+$info-color: #dfe1e6;
+$question-card-bg: #f4f2f8;
+$question-card-border: #ebebeb;
+$published-color: #d5cde4;
+$background-color: #fafafa;
+$secondary-button: #e2e2e2;
+$publish-button-disabled-bg: #d7d5dd;
+$publish-button-disabled-color: #a5a5a7;
+
+$Menu-selected: #d7c6f3;
+// Placeholder
+
+$input-placeholder-font-size: toRem(14);
+$input-placeholder-font-weight: $font-semibold;
+$input-placeholder-color: #737373;
+
+//Button
+$button-bg: linear-gradient(0deg, #563d81 0%, #6e539b 111%);

@@ -1,0 +1,16 @@
+.antSelect {
+  font-weight: $font-semibold;
+  border-width: toRem(2) !important;
+  border-radius: toRem(8) !important;
+}
+
+.error {
+  border-color: $base-danger;
+}
+
+label {
+  .error {
+    color: $base-danger;
+    margin-left: toRem(4);
+  }
+}

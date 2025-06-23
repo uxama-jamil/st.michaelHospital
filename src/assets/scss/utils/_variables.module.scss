@@ -1,0 +1,17 @@
+// assets/scss/utils/_variables.module.scss
+@use './variables' as vars; // Import your existing variables
+
+:export {
+  baseFontFamily: vars.$font-open-sans;
+  SecondaryFontFamily: vars.$font-montserrat;
+  primaryColor: vars.$primary-color;
+  baseDanger: vars.$base-danger;
+  baseText: vars.$base-text;
+  baseGrey: vars.$base-grey;
+  inputBackGround: vars.$input-bg;
+  borderColor: vars.$border-color;
+  buttonBackground: vars.$button-bg;
+  baseWhite: vars.$base-white;
+  cardHeaderBg: vars.$card-header-bg;
+  secondaryButtonBG: vars.$secondary-button
+}

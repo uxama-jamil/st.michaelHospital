@@ -1,0 +1,43 @@
+.questionCard {
+  background-color: $question-card-bg;
+  border: toRem(1) solid $question-card-border;
+  border-radius: toRem(8);
+  padding: toRem(14) toRem(12);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: toRem(16);
+}
+
+.optionContainer {
+  display: flex;
+  align-items: center;
+  gap: toRem(12);
+
+  .ellipsis,
+  .delete {
+    color: $base-text;
+    font-size: toRem(16);
+    cursor: pointer;
+    border: toRem(2) solid $border-color;
+    padding: toRem(14) toRem(12);
+    height: toRem(46);
+    border-radius: toRem(8);
+  }
+}
+
+.buttonContainer {
+  display: flex;
+  gap: toRem(12);
+}
+
+.checkboxGroup {
+  width: 100%;
+}
+
+.button {
+  cursor: pointer;
+  &:disabled {
+    cursor: not-allowed;
+  }
+}

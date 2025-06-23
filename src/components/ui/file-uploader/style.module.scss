@@ -1,0 +1,32 @@
+.uploadContainer {
+  .uploadButton {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: toRem(16);
+
+    button {
+      border-radius: toRem(10);
+    }
+
+    .ant-upload-hint {
+      font-size: toRem(10);
+      color: $input-placeholder-color;
+      font-weight: $font-medium;
+    }
+  }
+}
+
+.error {
+  border-color: $base-danger;
+}
+
+
+.uploadContainer {
+  margin-bottom: 16px;
+}
+
+.uploadButton {
+  text-align: center;
+}

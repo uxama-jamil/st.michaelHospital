@@ -1,0 +1,23 @@
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  gap: toRem(20);
+  align-items: center;
+  justify-content: center;
+  margin: toRem(60) 0;
+  text-align: center;
+
+  h2 {
+    font-size: toRem(20);
+    font-weight: $font-semibold;
+    color: $base-text;
+  }
+
+  p {
+    font-size: toRem(14);
+    font-family: $font-montserrat;
+    line-height: toRem(21);
+    font-weight: $font-medium;
+    color: $input-placeholder-color;
+  }
+}

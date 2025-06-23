@@ -1,0 +1,12 @@
+{
+    "recommendations": [
+        "vscode.typescript-language-features",
+        "editorconfig.editorconfig",
+        "streetsidesoftware.code-spell-checker",
+        "dbaeumer.vscode-eslint",
+        "waderyan.gitblame",
+        "donjayamanne.git-extension-pack",
+        "donjayamanne.githistory",
+        "eamodio.gitlens"
+    ]
+}

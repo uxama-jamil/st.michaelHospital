@@ -1,0 +1,71 @@
+.appSider {
+    min-height: 100vh;
+    padding: toRem(24) toRem(16);
+    background-color: $primary-color;
+    color: $base-white;
+
+    .height {
+        height: 100%;
+    }
+}
+
+.siderMenu {
+
+    li {
+        padding: toRem(12) toRem(14) !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        margin-block: toRem(8) !important;
+        border-radius: toRem(8);
+    }
+}
+
+.siderFooter {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+
+    .name {
+        font-size: toRem(16);
+        font-weight: $font-regular;
+        font-family: $font-montserrat;
+        margin: 0;
+    }
+
+    .userName {
+        font-size: toRem(14);
+        color: #AF9ECD;
+        font-weight: $font-medium;
+        font-family: $font-montserrat;
+        margin: 0;
+    }
+}
+
+.divider {
+    margin: toRem(16) 0;
+    border-color: rgba(255, 255, 255, 0.10);
+}
+
+.active {
+    background-color: $base-white !important;
+    color: $base-text !important;
+
+
+    svg,
+    svg path {
+        fill: $primary-color;
+    }
+}
+
+.logoutIcon {
+
+    &:hover,
+    &:active {
+        color: $base-white;
+
+
+    }
+}
+
+
+.profile {}

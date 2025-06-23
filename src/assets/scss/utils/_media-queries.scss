@@ -1,0 +1,92 @@
+$xs: 0;
+$sm: 540px;
+$md: 720px;
+$lg: 960px;
+$xl: 1140px;
+$xxl: 1320px;
+$xxxl: 1440px;
+$xxxxl: 1920px;
+
+@mixin sm {
+  @media only screen and (min-width: $sm) {
+    @content;
+  }
+}
+
+@mixin md {
+  @media only screen and (min-width: $md) {
+    @content;
+  }
+}
+
+@mixin lg {
+  @media only screen and (min-width: $lg) {
+    @content;
+  }
+}
+
+@mixin xl {
+  @media only screen and (min-width: $xl) {
+    @content;
+  }
+}
+
+@mixin xxl {
+  @media only screen and (min-width: $xxl) {
+    @content;
+  }
+}
+
+@mixin xxxl {
+  @media only screen and (min-width: $xxxl) {
+    @content;
+  }
+}
+
+@mixin xxxxl {
+  @media only screen and (min-width: $xxxxl) {
+    @content;
+  }
+}
+
+@mixin media($keys...) {
+  @each $key in $keys {
+    @if ($key==xs) {
+      @include xs {
+        @content;
+      }
+    } @else if ($key==sm) {
+      @include sm {
+        @content;
+      }
+    } @else if ($key==md) {
+      @include md {
+        @content;
+      }
+    } @else if ($key==lg) {
+      @include lg {
+        @content;
+      }
+    } @else if ($key==xl) {
+      @include xl {
+        @content;
+      }
+    } @else if ($key==xxl) {
+      @include xxl {
+        @content;
+      }
+    } @else if ($key==xxl) {
+      @include xxl {
+        @content;
+      }
+    } @else if ($key==xxxl) {
+      @include xxxl {
+        @content;
+      }
+    } @else if ($key==xxxxl) {
+      @include xxxxl {
+        @content;
+      }
+    }
+  }
+}

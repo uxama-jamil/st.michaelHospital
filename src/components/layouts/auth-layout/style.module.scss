@@ -1,0 +1,56 @@
+.bgPrimary {
+    background-color: $primary-color;
+
+    .leftSection {
+        background-color: $primary-color;
+        background-image: url('./../../../assets/images/auth/bg-auth-left.webp');
+        background-repeat: no-repeat;
+        background-size: cover;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        min-height: 100vh;
+        justify-content: space-around;
+
+        .leftSectionContent {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+
+    .rightSection {
+        background-image: url('./../../../assets/images/auth/bg-auth-right.webp');
+        background-repeat: no-repeat;
+        background-size: cover;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: toRem(40) 0px 0px toRem(40);
+        background-color: $primary-color;
+        backdrop-filter: blur(25px);
+    }
+}
+
+.loginBox {
+    border-radius: toRem(24);
+    background: $base-white;
+    box-shadow: 0px 2px 4px -4px rgba(0, 0, 0, 0.12);
+    padding: toRem(45);
+    max-width: toRem(500);
+    border: toRem(1) solid $border-color;
+
+    h1 {
+        color: $primary-color;
+        font-size: toRem(30);
+    }
+
+    h2 {
+        color: $base-text;
+        font-size: toRem(16);
+        font-weight: $font-medium;
+        margin: toRem(16) 0 toRem(40);
+        line-height: 1.25;
+    }
+}

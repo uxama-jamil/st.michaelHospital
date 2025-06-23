@@ -1,0 +1,24 @@
+.icon {
+    font-size: 60px;
+    color: #D5CDE4;
+    background-color: $primary-color;
+    border-radius: toRem(100);
+}
+
+.title {
+    color: $primary-color;
+    font-size: toRem(30);
+    font-weight: $font-bold;
+}
+
+.subTitle {
+    color: $input-placeholder-color;
+    font-size: toRem(16);
+    font-weight: $font-semibold;
+    margin-top: toRem(16);
+}
+
+.boldText {
+    color: $base-text;
+    font-weight: $font-bold;
+}
