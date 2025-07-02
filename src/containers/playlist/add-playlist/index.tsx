@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useHeader } from '@/context/header';
 import { Button, Card } from '@/components/ui';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Row, Col, Space, type SelectProps, Checkbox, Skeleton, Tag } from 'antd';
+import { Row, Col, Space, Checkbox, Skeleton } from 'antd';
 import AntInput from '@/components/ui/input';
 import AntTextArea from '@/components/ui/text-area';
 import AntDropdown from '@/components/ui/dropdown';
@@ -10,20 +10,19 @@ import FileUpload from '@/components/ui/file-uploader';
 import { useFormik } from 'formik';
 import { validate } from '@/utils';
 
-import type { PlaylistContent, PlaylistForm, PlaylistPayload } from '@/types/playlist';
+import type { PlaylistContent, PlaylistForm, PlaylistResponse } from '@/types/playlist';
 import { useMessage } from '@/context/message';
 import keyword from '@/services/api';
 import { KEYWORDS_API } from '@/constants/api';
 import FullPageLoader from '@/components/ui/spin';
-import { useModule } from '@/context/module';
-import { mockImages } from '@/constants/image-links';
 import { ButtonType } from '@/constants/button';
 import { PLAYLIST_ROUTES } from '@/constants/route';
 import { ModuleContentType } from '@/constants/module';
-import modulesManagementServices from '@/services/modules-management';
+
+import contentApi from '@/services/content-api';
 import styles from './style.module.scss';
 import { Image } from 'antd';
-import { getIcon, PLACEHOLDER_IMG, ICON_MAP } from '@/components/ui/card-content';
+import { getIcon, PLACEHOLDER_IMG } from '@/components/ui/card-content';
 import playlistServices from '@/services/playlist-api';
 
 const RenderContent = ({ contentType, title, thumbnail }) => {
@@ -75,13 +74,18 @@ const AddPlayList = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [options, setOptions] = useState([]);
   const { id } = useParams<{ id: string }>();
-  const { setModule } = useModule();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [playlistData, setPlaylistData] = useState<PlaylistResponse | null>(null);
+  const [dropdownFetching, setDropdownFetching] = useState(false);
+
   const [keywords, setKeywords] = useState([]);
   const [initialValues, setInitialValues] = useState<PlaylistForm>({
     name: '',
     keywordIds: [],
     description: '',
-    thumbnail: mockImages[Math.floor(Math.random() * mockImages.length)],
+    thumbnail: '',
     content: [],
   });
   const [selectedContent, setSelectedContent] = useState<PlaylistContent[]>([]);
@@ -108,33 +112,68 @@ const AddPlayList = () => {
     },
   };
 
+  const fetchPlaylist = async () => {
+    try {
+      setIsLoading(true);
+      const response = await playlistServices.getPlayListById(id);
+
+      if (response) {
+        // Normalize data for form fields
+        setPlaylistData(response);
+      } else {
+        message.error('Playlist data not found.');
+      }
+    } catch (err: any) {
+      message.error(err?.message || 'Failed to fetch playlist');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePlaylistData = () => {
+    const selectedMapped =
+      playlistData?.content.map((item: any) => ({
+        id: item.contentId,
+        title: item.title,
+        thumbnail: item.thumbnail,
+        thumbnailAccessUrl: item.thumbnailAccessUrl,
+        contentType: item.contentType || '',
+      })) || [];
+
+    // Always ensure selectedMapped is merged into options directly
+    setOptions((prev) => {
+      const all = [...prev];
+      selectedMapped.forEach((item) => {
+        if (!all.some((opt) => opt.id === item.id)) {
+          all.push(item);
+        }
+      });
+      return all;
+    });
+
+    const selectedPlaylistContent =
+      playlistData?.content.map((item: any) => ({
+        contentId: item.contentId,
+        sortOrder: item.sortOrder,
+      })) || [];
+
+    setSelectedContent(selectedPlaylistContent);
+
+    setInitialValues({
+      name: playlistData?.name || '',
+      keywordIds: playlistData?.keywords.map((keyword: any) => keyword.id) || [],
+      description: playlistData?.description || '',
+      thumbnail: playlistData?.thumbnail || '',
+      content: selectedPlaylistContent,
+    });
+  };
+
   // Fetch module data
   useEffect(() => {
-    getKeywords();
-    // const fetchModule = async () => {
-    //   try {
-    //     const response = await api.getModule(id);
-    //     const data = response?.data;
-    //     if (data) {
-    //       // Normalize data for form fields
-    //       const normalized = {
-    //         title: data.title || '',
-    //         keywordIds: data.keywords.map((keyword: any) => keyword.id) || [],
-    //         description: data.description || '',
-    //         thumbnail: data.thumbnail || '',
-    //       };
-    //       setInitialValues(normalized);
-    //     } else {
-    //       message.error('Playlist data not found.');
-    //     }
-    //   } catch (err: any) {
-    //     message.error(err?.message || 'Failed to fetch playlist');
-    //   }
-    // };
-    // if (id) {
-    //   fetchModule();
-    // }
-  }, []);
+    if (playlistData && !dropdownFetching) {
+      handlePlaylistData();
+    }
+  }, [playlistData, id]);
 
   const getKeywords = async () => {
     try {
@@ -159,25 +198,24 @@ const AddPlayList = () => {
   const handleSubmit = async (values: PlaylistForm) => {
     try {
       const payload = { ...values };
-      console.log('payload', payload);
+      payload['status'] = 'draft';
+
       setIsLoading(true);
 
       if (id) {
-        // payload['id'] = id;
-        // const response = await api.updatePlaylist(payload);
-        // const data = response?.data;
-        // if (data) {
-        //   message.success(response?.message || 'Playlist updated successfully.');
-        //   setPlaylist(data as Partial<Playlist>);
-        //   navigate(PLAYLIST_ROUTES.BASE);
-        // }
+        payload['id'] = id;
+        const response = await playlistServices.updatePlayList(id, payload);
+        const data = response?.data;
+        if (data) {
+          message.success(response?.message || 'Playlist updated successfully.');
+          navigate(PLAYLIST_ROUTES.DETAIL.replace(':id', id));
+        }
       } else {
         const response = await playlistServices.createPlaylist(payload);
         const data = response?.data;
         if (data) {
           message.success('Playlist created successfully.');
-          // setPlaylist(data as Partial<Playlist>);
-          navigate(PLAYLIST_ROUTES.BASE);
+          navigate(PLAYLIST_ROUTES.DETAIL.replace(':id', data.id));
         }
       }
     } catch (err: any) {
@@ -224,62 +262,51 @@ const AddPlayList = () => {
   }, []);
 
   useEffect(() => {
-    fetchContentData();
+    setCurrentPage(1);
+    fetchContentData(true);
+
+    getKeywords();
+
+    if (id) {
+      fetchPlaylist();
+    }
+    // eslint-disable-next-line
   }, []);
 
-  const fetchContentData = async () => {
-    const payload = {
-      order: 'ASC',
-      page: 1,
-      take: 18,
-      categoryId: '45ba9ac2-e698-4909-8036-8e2632e31424',
-    };
-    const response = await modulesManagementServices.getModuleContents(payload);
-    const data = response?.data?.data || [];
-    setOptions(data);
-    setIsLoading(false);
-  };
+  const fetchContentData = async (reset = false) => {
+    if (loadingMore || !hasMore) return;
+    setDropdownFetching(true);
+    setLoadingMore(true);
+    const pageToFetch = reset ? 1 : currentPage;
+    try {
+      const response = await contentApi.getAllContent(pageToFetch, 30, 'ASC');
+      const data = response?.data?.data || [];
+      const meta = response?.data?.meta || {};
 
-  const dropdownRender: SelectProps['dropdownRender'] = (menu) => (
-    <div className={styles.playlistDropdown}>
-      <div className={styles.playlistGrid}>
-        {options.map((item) => {
-          // const isSelected = selectedIds.includes(item.id);
-          const isSelected = selectedContent.some((c) => c.contentId === item.id);
-          return (
-            <div
-              key={item.id}
-              className={`${styles.playlistCard} ${isSelected ? styles.selected : ''}`}
-              onClick={() => {
-                if (isSelected) {
-                  const updated = selectedContent.filter((c) => c.contentId !== item.id);
-                  setSelectedContent(updated);
-                  formik.setFieldValue('content', updated);
-                } else {
-                  const updated = [
-                    ...selectedContent,
-                    {
-                      contentId: item.id,
-                      sortOrder: selectedContent.length + 1,
-                    },
-                  ];
-                  setSelectedContent(updated);
-                  formik.setFieldValue('content', updated);
-                }
-              }}
-            >
-              <Checkbox className={styles.checkbox} checked={isSelected} />
-              <RenderContent
-                contentType={item.contentType}
-                title={item.title}
-                thumbnail={item.thumbnail}
-              />
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
+      if (data.length > 0) {
+        setOptions((prev) => {
+          const newData = reset
+            ? data
+            : [
+                ...data.filter((newItem) => !prev.some((existing) => existing.id === newItem.id)),
+                ...options,
+              ];
+          return newData;
+        });
+        setHasMore(meta.hasNextPage);
+        setCurrentPage(reset ? 2 : currentPage + 1);
+      } else {
+        if (reset) setOptions([]);
+        setHasMore(false);
+      }
+    } catch (error) {
+      message.showError(error, 'Failed to load content');
+    } finally {
+      setLoadingMore(false);
+      setIsLoading(false);
+      setDropdownFetching(false);
+    }
+  };
 
   const renderSelected = () => (
     <div className={styles.selectedGrid}>
@@ -301,7 +328,7 @@ const AddPlayList = () => {
             <RenderContent
               contentType={item.contentType}
               title={item.title}
-              thumbnail={item.thumbnail}
+              thumbnail={item.thumbnailAccessUrl}
             />
           </div>
         );
@@ -333,7 +360,6 @@ const AddPlayList = () => {
                     <Col span={12}>
                       <AntDropdown
                         label="Link Keywords"
-                        required
                         options={keywords}
                         style={{ width: '100%' }}
                         placeholder="Select"
@@ -368,42 +394,54 @@ const AddPlayList = () => {
                         label="Thumbnail"
                         type={ModuleContentType.Image}
                         required
+                        accessUrl={playlistData?.thumbnailAccessUrl || ''}
                         name="thumbnail"
                         value={formik.values.thumbnail}
                         onChange={(value) => {
-                          console.log('value', value);
+                          formik.setFieldValue('thumbnail', value);
                         }}
                         onBlur={formik.handleBlur}
                         error={formik.touched.thumbnail && formik.errors.thumbnail}
                       />
                     </Col>
                     <Col span={24}>
-                      <div>
-                        <label>Content *</label>
-                        <AntDropdown
-                          mode="multiple"
-                          value={selectedContent.map((item) => item.contentId)}
-                          onChange={(value: string[]) => {
-                            const updated = value.map((id, index) => ({
-                              contentId: id,
-                              sortOrder: index + 1,
-                            }));
-                            console.log('valuess', value);
-                            setSelectedContent(updated);
-                            formik.setFieldValue('content', updated);
-                          }}
-                          placeholder="Select"
-                          required
-                          onBlur={() => formik.setFieldTouched('content', true)}
-                          loading={isLoading}
-                          error={formik.touched.content && formik.errors.content}
-                          dropdownRender={dropdownRender}
-                          filterOption={false}
-                          style={{ width: '100%' }}
-                        />
+                      <AntDropdown
+                        label="Content"
+                        mode="multiple"
+                        value={selectedContent.map((item) => item.contentId)}
+                        onChange={(value: string[]) => {
+                          const updated = value.map((id, index) => ({
+                            contentId: id,
+                            sortOrder: index + 1,
+                          }));
 
-                        {renderSelected()}
-                      </div>
+                          setSelectedContent(updated);
+                          formik.setFieldValue('content', updated);
+                        }}
+                        placeholder="Select"
+                        required
+                        onBlur={() => formik.setFieldTouched('content', true)}
+                        loading={loadingMore}
+                        error={formik.touched.content && formik.errors.content}
+                        options={options.map((item) => ({
+                          label: item.title,
+                          value: item.id,
+                        }))}
+                        onPopupScroll={(e) => {
+                          const target = e.target as HTMLDivElement;
+                          if (
+                            !loadingMore &&
+                            hasMore &&
+                            target.scrollTop + target.offsetHeight >= target.scrollHeight - 100
+                          ) {
+                            fetchContentData(); // Only fetch when near bottom and not already loading
+                          }
+                        }}
+                        filterOption={false}
+                        style={{ width: '100%' }}
+                      />
+
+                      {renderSelected()}
                     </Col>
                   </Row>
                 </form>

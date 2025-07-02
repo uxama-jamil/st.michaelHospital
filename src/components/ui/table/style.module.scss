@@ -1,31 +1,31 @@
 .tablePagination {
-    display: flex;
-    justify-content: flex-end;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .table {
-    thead tr th:not(:last-child) {
-        border-inline-end: none !important;
-    }
+  thead tr th:not(:last-child) {
+    border-inline-end: none !important;
+  }
 
-    tbody tr td:not(:last-child) {
-        border-inline-end: none !important;
-    }
+  tbody tr td:not(:last-child) {
+    border-inline-end: none !important;
+  }
 
-    tbody tr:not(:last-child) td {
-        border-bottom: none !important;
-    }
+  tbody tr:not(:last-child) td {
+    border-bottom: none !important;
+  }
 
-    tbody tr td {
-        font-size: toRem(14) !important;
-        padding: toRem(16);
-        white-space: 'normal';
-         word-break: 'break-word'
-    }
+  tbody tr td {
+    font-size: toRem(14) !important;
+    padding: toRem(16);
+    white-space: 'normal';
+    word-break: 'break-word';
+  }
 
-    thead tr th {
-        font-size: toRem(13) !important;
-        padding: toRem(16) !important;
-        text-transform: capitalize;
-    }
+  thead tr th {
+    font-size: toRem(13) !important;
+    padding: toRem(16) !important;
+    text-transform: capitalize;
+  }
 }

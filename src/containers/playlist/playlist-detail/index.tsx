@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, use } from 'react';
 import { List, Row, Col, Space, Modal } from 'antd';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
@@ -23,7 +23,11 @@ const PlaylistDetail: React.FC = () => {
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [contentHeight, setContentHeight] = useState(400);
-  const [confirmModal, setConfirmModal] = useState<{ open: boolean; item?: Content }>({ open: false });
+  const [playlist, setPlaylist] = useState<any>(null);
+  const [publishLoading, setPublishLoading] = useState(false);
+  const [confirmModal, setConfirmModal] = useState<{ open: boolean; item?: Content }>({
+    open: false,
+  });
 
   const navigate = useNavigate();
   const message = useMessage();
@@ -63,7 +67,8 @@ const PlaylistDetail: React.FC = () => {
 
   // Set header and actions
   useEffect(() => {
-    setTitle('Pelvic Floor Physiotherapy');
+    if (!playlist) return;
+    setTitle(playlist?.name || '');
     setActions([
       <Space size="small" key="actions">
         <Button
@@ -77,14 +82,41 @@ const PlaylistDetail: React.FC = () => {
           key="Edit"
           onClick={() => {
             if (playListId) {
-              navigate(PLAYLIST_ROUTES.EDIT.replace(':playListId', playListId));
+              navigate(PLAYLIST_ROUTES.EDIT.replace(':id', playListId));
             }
           }}
           htmlType="button"
           text="Edit"
           size="small"
+          disabled={playlist?.status.toLowerCase() === 'published'}
           type={ButtonType.PRIMARY}
         />
+
+        <>
+          {playlist?.status.toLowerCase() === 'draft' && (
+            <Button
+              key="Publish Module"
+              onClick={() => handlePublish('Published')}
+              htmlType="button"
+              text="Publish Module"
+              disabled={contents.length === 0}
+              size="small"
+              type={ButtonType.SECONDARY}
+              loading={publishLoading}
+            />
+          )}
+          {playlist?.status.toLowerCase() === 'published' && (
+            <Button
+              key="Draft Module"
+              onClick={() => handlePublish('Draft')}
+              htmlType="button"
+              text="Save as draft"
+              size="small"
+              type={ButtonType.SECONDARY}
+              loading={publishLoading}
+            />
+          )}
+        </>
       </Space>,
     ]);
     setBreadcrumbs([]);
@@ -93,7 +125,47 @@ const PlaylistDetail: React.FC = () => {
     updateHeight();
     window.addEventListener('resize', updateHeight);
     return () => window.removeEventListener('resize', updateHeight);
-  }, [setTitle, setActions, setBreadcrumbs, navigate, playListId]);
+  }, [playlist, contents.length, setTitle, setActions, setBreadcrumbs, navigate, playListId]);
+
+  const handlePublish = async (status: 'Draft' | 'Published') => {
+    setPublishLoading(true);
+    try {
+      await playListServices.publishContent(playListId, status);
+      status === 'Published'
+        ? message.success(`Playlist published successfully.`)
+        : message.success(`Playlist saved as draft successfully.`);
+      console.log('status', status);
+      fetchPlaylist();
+      fetchContents(true);
+    } catch (error) {
+      message.showError(error, `Failed to update the module ${status}.`);
+    } finally {
+      setPublishLoading(false);
+    }
+  };
+
+  const fetchPlaylist = async () => {
+    try {
+      setIsLoading(true);
+      const response = await playListServices.getPlayListById(playListId);
+
+      if (response) {
+        // Normalize data for form fields
+        console.log('response', response);
+        setPlaylist(response);
+      } else {
+        message.error('Playlist data not found.');
+      }
+    } catch (err: any) {
+      message.error(err?.message || 'Failed to fetch playlist');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPlaylist();
+  }, []);
 
   // Initial fetch
   useEffect(() => {
@@ -152,6 +224,7 @@ const PlaylistDetail: React.FC = () => {
               dataLength={contents.length}
               next={() => fetchContents()}
               hasMore={hasMore}
+              style={{ overflow: 'hidden' }}
               loader={
                 hasMore && isLoading ? (
                   <Row align="middle" justify="center">

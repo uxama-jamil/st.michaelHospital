@@ -4,6 +4,7 @@ export const ROUTE_PATHS = {
   FORGOT_PASSWORD: '/forgot-password',
   EMAIL_SENT: '/email-sent',
   SET_PASSWORD: '/set-password',
+  TWO_FACTOR_AUTH: '/2fa',
   RESET_PASSWORD: '/reset-password',
   PROFILE: '/profile',
   // Module routes
@@ -23,7 +24,7 @@ export const ROUTE_PATHS = {
     BASE: '/playlist',
     ADD: '/add-playlist',
     EDIT: '/edit-playlist/:id',
-    DETAIL: '/playlist-detail',
+    DETAIL: '/playlist-detail/:id',
   },
 
   // User routes
@@ -43,6 +44,7 @@ export const AUTH_ROUTES = {
   FORGOT_PASSWORD: ROUTE_PATHS.FORGOT_PASSWORD,
   EMAIL_SENT: ROUTE_PATHS.EMAIL_SENT,
   SET_PASSWORD: ROUTE_PATHS.SET_PASSWORD,
+  TWO_FACTOR_AUTH: ROUTE_PATHS.TWO_FACTOR_AUTH,
 } as const;
 
 export const MODULES_ROUTES = ROUTE_PATHS.MODULES;

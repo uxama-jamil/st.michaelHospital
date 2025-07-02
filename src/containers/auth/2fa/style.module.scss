@@ -1,0 +1,11 @@
+.twoFactorAuth {
+  .description {
+    margin: toRem(16) 0 toRem(25);
+  }
+  .cooldown {
+    margin-bottom: toRem(10);
+    .seconds {
+      color: $primary-color;
+    }
+  }
+}

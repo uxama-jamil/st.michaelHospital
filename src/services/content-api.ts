@@ -1,8 +1,15 @@
 import api from './api';
-import { CONTENT_API_BASE, CONTENT_API, CONTENT_API_UPDATE } from '@/constants/api';
-import type { AddOrUpdateContent, ContentApiResponse } from '@/types/content';
-import type { ApiError } from '@/types/error';
+import {
+  CONTENT_API_BASE,
+  CONTENT_API,
+  CONTENT_API_UPDATE,
+  S3_API_BASE,
+  CONTENT_API_ALL,
+} from '@/constants/api';
+import type { AddOrUpdateContent, ContentApiResponse, FileInfo } from '@/types/content';
+
 import { handleApiError } from '@/utils';
+import axios from 'axios';
 
 // Error handling
 
@@ -43,14 +50,39 @@ const contentService = {
       handleApiError(error);
     }
   },
-
-  uploadFile: async (file: File) => {
+  getAllContent: async (page = 1, take = 10, orderBy = 'ASC') => {
     try {
-      const formData = new FormData();
-      formData.append('file', file);
+      const response = await api.get<ContentApiResponse>(
+        `${CONTENT_API_ALL}?page=${page}&take=${take}&order=${orderBy}`,
+      );
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
 
-      const response = await api.post(`${CONTENT_API_BASE}/upload`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+  getUploadUrl: async (fileInfo: FileInfo) => {
+    try {
+      const response = await api.get(`${S3_API_BASE}`, {
+        params: {
+          filename: fileInfo.filename,
+          type: fileInfo.type,
+          mimetype: fileInfo.mimetype,
+        },
+      });
+
+      return response.data; // must contain a 'url' field
+    } catch (error) {
+      handleApiError(error);
+      throw error;
+    }
+  },
+
+  uploadFile: async (file: File, fileInfo) => {
+    try {
+      console.log(`file object passing to ${fileInfo.signedUrl} `, file);
+      const response = await axios.put(`${fileInfo.signedUrl}`, file, {
+        headers: { 'Content-Type': fileInfo.mimetype },
       });
 
       return response.data; // must contain a 'url' field

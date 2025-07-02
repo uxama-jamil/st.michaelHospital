@@ -1,5 +1,5 @@
 import { Input, Button } from '@/components/ui';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
 import api from '@/services/api';
 import { useAuth } from '@/context/auth-provider';
@@ -9,22 +9,25 @@ import { validate, validatePassword } from '@/utils';
 import { useMessage } from '@/context/message';
 import { useState } from 'react';
 import AntInput from '@/components/ui/input';
+import { RoleType } from '@/constants/user-management';
+import { AUTH_ROUTES } from '@/constants/route';
 
 const Login = () => {
   const { loginAction } = useAuth();
   const message = useMessage();
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   const rules = {
     email: {
-      required: { value: true, message: "Email is required." },
+      required: { value: true, message: 'Email is required.' },
       pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
     },
     password: {
-      required: { value: true, message: "Password is required." },
-      min: { value: 8, message: "Password must be at least 8 characters." },
+      required: { value: true, message: 'Password is required.' },
+      min: { value: 8, message: 'Password must be at least 8 characters.' },
       custom: {
         isValid: (value: string) => validatePassword(value) === undefined,
-        message: "Password must contain uppercase, lowercase, number, and special character.",
+        message: 'Password must contain uppercase, lowercase, number, and special character.',
       },
     },
   };
@@ -36,25 +39,25 @@ const Login = () => {
     },
     onSubmit: (values) => {
       setLoading(true);
+      const payload = { ...values, role: RoleType.ADMIN };
       api
-        .post('/auth/login', values)
+        .post('/auth/login', payload)
         .then((res) => {
           if (res.status) {
-            message.success('Login successful.');
-            console.log('res', res);
             const { data } = res;
-            const token = data.data.token.accessToken ? data.data.token.accessToken : '';
-            const userDetails = data.data.user;
-            if (token) {
-              loginAction(token, userDetails);
+
+            const userDetails = data.data;
+
+            if (userDetails) {
+              message.info('Please check your email for OTP.');
+              loginAction(userDetails);
+              navigate(AUTH_ROUTES.TWO_FACTOR_AUTH);
             }
           }
         })
         .catch((error) => {
           const apiMessage =
-            error?.response?.data?.message ||
-            error?.message ||
-            'Login failed. Please try again.';
+            error?.response?.data?.message || error?.message || 'Login failed. Please try again.';
           message.showError(apiMessage);
         })
         .finally(() => {

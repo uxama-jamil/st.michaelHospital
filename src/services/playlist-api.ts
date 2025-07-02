@@ -20,14 +20,14 @@ const playListServices = {
     }
   },
 
-  // getPlayListById: async (id: string): Promise<UserDetails> => {
-  //   try {
-  //     const response = await api.get<UserDetails>(`/playlists/${id}`);
-  //     return response.data;
-  //   } catch (error) {
-  //     handleApiError(error);
-  //   }
-  // },
+  getPlayListById: async (id: string): Promise<any> => {
+    try {
+      const response = await api.get<any>(`/playlists/${id}`);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
   createPlaylist: async (payload: PlaylistPayload) => {
     try {
       const response = await api.post<PlaylistPayload>('/playlists', payload);
@@ -37,14 +37,14 @@ const playListServices = {
     }
   },
 
-  // updatePlayList: async (id: string, userData: Partial<UserDetails>): Promise<UserDetails> => {
-  //   try {
-  //     const response = await api.put<UserDetails>(`/playlists`, userData);
-  //     return response.data;
-  //   } catch (error) {
-  //     handleApiError(error);
-  //   }
-  // },
+  updatePlayList: async (id: string, payload: Partial<any>): Promise<any> => {
+    try {
+      const response = await api.patch<any>(`/playlists/${id}`, payload);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
   getPlayListContents: async (
     payload: Record<string, any>,
   ): Promise<PlaylistApiResponse | undefined> => {
@@ -66,6 +66,18 @@ const playListServices = {
       await api.delete(`/playlist/${id}`);
     } catch (error) {
       handleApiError(error);
+    }
+  },
+  publishContent: async (id: string, status: string): Promise<{ id: string; status: string }> => {
+    try {
+      const response = await api.patch<{ id: string; status: string }>(`/playlists/${id}/status`, {
+        id,
+        status,
+      });
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+      throw error;
     }
   },
 };

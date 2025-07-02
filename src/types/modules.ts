@@ -1,4 +1,4 @@
-import type { ModuleContentType } from "@/constants/module";
+import type { ModuleContentType } from '@/constants/module';
 
 export interface Keyword {
   id: string;
@@ -118,12 +118,13 @@ export interface CardContentProps {
   url?: string;
   length?: number | null;
   thumbnail?: string;
+  thumbnailAccessUrl?: string;
+  contentAccessUrl?: string;
   contentType: ModuleContentType;
   onEdit?: () => void;
   onDelete?: () => void;
   duration?: string; // add this
 }
-
 
 export interface GenericUploadProps {
   label?: string;

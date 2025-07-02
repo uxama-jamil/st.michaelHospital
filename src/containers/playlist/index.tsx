@@ -1,14 +1,15 @@
-import { Button, Table, Tag, Empty } from '@/components/ui';
+import { Button, Table, Tag, Empty, DialogBox as AntModal } from '@/components/ui';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useHeader } from '@/context/header';
 import { PLAYLIST_ROUTES } from '@/constants/route';
 import { DeleteOutlined, EditOutlined, RightOutlined } from '@ant-design/icons';
-import { Col, Modal, Row, Space } from 'antd';
+import { Col, Row, Space } from 'antd';
 import playListServices from '@/services/playlist-api';
 import type { Playlist } from '@/types/playlist';
 import type { TablePaginationConfig } from 'antd/es/table';
 import { useMessage } from '@/context/message';
+import { DynamicTagGroup } from '../module';
 
 const PlayList = () => {
   const { setTitle, setSubtitle, setActions, setBreadcrumbs } = useHeader();
@@ -111,40 +112,47 @@ const PlayList = () => {
         key: 'keywords',
         dataIndex: 'keywords',
         width: 280,
-        render: (_: any, record: Playlist) => {
-          const keywords = record.keywords?.map((k) => k.name) ?? [];
-          const display = keywords.slice(0, 2).map((k, i) => (
-            <Tag variant="secondary" key={i}>
-              {k}
-            </Tag>
-          ));
-          if (keywords.length > 2) {
-            display.push(<Tag key="extra">+{keywords.length - 2}</Tag>);
-          }
-          return display.length ? display : 'N/A';
-        },
+        render: (keywords: any[]) => <DynamicTagGroup keywords={keywords.map((k) => k?.name)} />,
       },
       {
         title: 'Status',
         dataIndex: 'status',
         key: 'status',
-        render: (status: string) => (
-          <Tag variant={status === 'draft' ? 'warning' : 'success'}>
-            {status === 'draft' ? 'Save as Draft' : 'Published'}
-          </Tag>
-        ),
+        render: (status: string) => {
+          return (
+            <Tag variant={status.toLowerCase() === 'draft' ? 'warning' : 'success'}>
+              {status.toLowerCase() === 'draft' ? 'Draft' : 'Published'}
+            </Tag>
+          );
+        },
       },
       {
         title: 'Action',
         key: 'action',
         width: '120px',
-        render: (_: any, record: Playlist) => (
-          <Space size="middle">
-            <EditOutlined onClick={() => handleEditOrView(record.id, false)} />
-            <DeleteOutlined onClick={() => setConfirmModal({ open: true, user: record })} />
-            <RightOutlined onClick={() => handleEditOrView(record.id, true)} />
-          </Space>
-        ),
+        render: (_: any, record: Playlist) => {
+          const status = record.status.toLowerCase();
+          console.log('status', status);
+          return (
+            <Space size="middle">
+              <EditOutlined
+                onClick={() => status !== 'published' && handleEditOrView(record.id, false)}
+                className={status === 'published' ? 'action-disabled' : ''}
+                title={status === 'published' ? 'Cannot edit published playlist' : 'Edit'}
+              />
+              <DeleteOutlined
+                onClick={() =>
+                  status !== 'published' && setConfirmModal({ open: true, user: record })
+                }
+                className={status === 'published' ? 'action-disabled' : ''}
+                title={status === 'published' ? 'Cannot delete published playlist' : 'Delete'}
+              />
+              <RightOutlined
+                onClick={() => navigate(PLAYLIST_ROUTES.DETAIL.replace(':id', record.id))}
+              />
+            </Space>
+          );
+        },
       },
     ],
     [handleEditOrView],
@@ -181,7 +189,7 @@ const PlayList = () => {
           />
         </Col>
       </Row>
-      <Modal
+      <AntModal
         open={confirmModal.open}
         title="Confirm"
         footer={[
@@ -204,7 +212,7 @@ const PlayList = () => {
         onCancel={() => setConfirmModal({ open: false })}
       >
         {`Are you sure you want to delete playlist ${confirmModal.user?.name}?`}
-      </Modal>
+      </AntModal>
     </>
   );
 };

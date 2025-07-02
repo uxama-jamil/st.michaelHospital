@@ -236,3 +236,8 @@ export function truncateText(text: string, maxLength: number): JSX.Element | str
   }
   return text;
 }
+
+export function extractOriginalFilename(key: string): string {
+  const filename = key.split('/').pop() || '';
+  return filename.substring(37); // 36 (UUID) + 1 (hyphen) = 37
+}

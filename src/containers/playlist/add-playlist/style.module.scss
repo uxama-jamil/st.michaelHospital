@@ -22,31 +22,29 @@
 .selectedGrid {
   display: flex;
   flex-wrap: wrap;
-  gap: toRem(12);
+  gap: toRem(15);
   margin-top: toRem(12);
   .playlistCard {
+    position: relative;
     flex-grow: 0;
-    flex-basis: toRem(150);
-    width: toRem(150);
+    flex-basis: toRem(175);
+    // width: toRem(160);
+    .checkbox {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      z-index: 1;
+    }
   }
 }
 
-.playlistCard {
-  position: relative;
-  flex: 1 1 toRem(150);
-  width: toRem(150);
-  // height: toRem(122);
-  // width: 120px;
-  // height: 120px;
-  // margin-bottom: 12px;
+// .playlistCard {
+//   position: relative;
+//   flex-grow: 0;
+//   flex-basis: toRem(160);
+//   width: 100%;
 
-  .checkbox {
-    position: absolute;
-    top: 6px;
-    left: 6px;
-    z-index: 1;
-  }
-}
+// }
 
 .selected {
   border-color: #1890ff;

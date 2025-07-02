@@ -307,6 +307,12 @@ input[disabled] {
 .resend-link {
   color: $primary-color;
   cursor: pointer;
+  &.disabled {
+    color: #bfbfbf;
+    pointer-events: none;
+    cursor: not-allowed;
+    text-decoration: none;
+  }
 }
 
 .cursor-pointer {
@@ -401,4 +407,13 @@ input[disabled] {
   color: lighten($base-text, 60%);
   cursor: not-allowed !important;
   pointer-events: none;
+}
+.ant-otp {
+  display: flex;
+  justify-content: space-between;
+  gap: toRem(10);
+  .ant-otp-input {
+    padding: toRem(12) toRem(20);
+    font-size: toRem(20);
+  }
 }

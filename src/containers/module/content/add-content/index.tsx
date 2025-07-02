@@ -97,13 +97,14 @@ const AddContent = () => {
   const navigate = useNavigate();
   const [module, setModule] = useState(null);
   const { id, categoryId } = useParams<{ id: string; categoryId: string }>();
+  const [contentData, setContentData] = useState(null);
   const [initialValues, setInitialValues] = useState({
     title: '',
     description: '',
     sessionNo: 0,
     contentType: ModuleContentType.Video,
-    thumbnail: images[Math.floor(Math.random() * images.length)],
-    url: images[Math.floor(Math.random() * images.length)],
+    thumbnail: '',
+    url: '',
     questions: [],
   });
   const { setTitle, setActions, setBreadcrumbs } = useHeader();
@@ -141,13 +142,16 @@ const AddContent = () => {
       required: { value: true, message: 'Session number is required.' },
     },
     thumbnail: {
-      required: { value: true, message: 'Banner is required.' },
+      required: { value: true, message: 'Banner image is required..' },
     },
     contentType: {
       required: { value: true, message: 'Content type is required.' },
     },
     url: {
-      required: { value: true, message: 'Link is required.' },
+      required: {
+        value: true,
+        message: `Please upload a valid ${initialValues.contentType.toLowerCase()} file.`,
+      },
     },
   };
 
@@ -353,6 +357,7 @@ const AddContent = () => {
       const result = await api.getContent(id);
       const data = result?.data;
       if (data) {
+        setContentData(data);
         setInitialValues(data);
         setQuestionnaireStatus(data?.questionnaireStatus);
         data?.questions?.length > 0 &&
@@ -540,7 +545,14 @@ const AddContent = () => {
                     maxWidth={1600}
                     maxHeight={1600}
                     value={formik.values.thumbnail}
-                    onChange={(value) => formik.setFieldValue('thumbnail', value)}
+                    accessUrl={contentData?.thumbnailAccessUrl || ''}
+                    onChange={(value) => {
+                      formik.setFieldValue('thumbnail', value);
+                      setInitialValues((prev) => ({
+                        ...prev,
+                        thumbnail: value,
+                      }));
+                    }}
                     onBlur={() => formik.handleBlur({ target: { name: 'thumbnail' } })}
                     error={formik.touched.thumbnail && formik.errors.thumbnail}
                   />
@@ -569,14 +581,19 @@ const AddContent = () => {
                   {formik.values.contentType !== ModuleContentType.Link && (
                     <FileUploader
                       name={formik.values.contentType}
-                      type={
-                        formik.values.contentType.toLowerCase() as 'video' | 'audio' | 'document'
-                      }
+                      type={formik.values.contentType}
                       maxCount={1}
                       maxSizeMB={2}
                       label={`Upload ${initialValues.contentType}`}
                       value={formik.values.url}
-                      onChange={(value) => formik.setFieldValue('url', value)}
+                      accessUrl={contentData?.contentAccessUrl || ''}
+                      onChange={(value) => {
+                        formik.setFieldValue('url', value);
+                        setInitialValues((prev) => ({
+                          ...prev,
+                          url: value,
+                        }));
+                      }}
                       onBlur={() => formik.handleBlur({ target: { name: 'url' } })}
                       error={formik.touched.url && formik.errors.url}
                     />

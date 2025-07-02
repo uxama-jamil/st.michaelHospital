@@ -106,3 +106,32 @@ export interface PlaylistPayload {
 }
 
 export type PlaylistForm = PlaylistPayload;
+
+export interface PlaylistResponse {
+  id: string;
+  name: string;
+  description: string;
+  status: 'draft' | 'published';
+  thumbnail: string;
+  thumbnailAccessUrl: string;
+  createdAt: string;
+  updatedAt: string;
+  user: User;
+  keywords: Keyword[];
+  content: PlaylistContent[];
+}
+
+export interface Keyword {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  name: string;
+}
+
+export interface PlaylistContent {
+  sortOrder: number;
+  title?: string;
+  contentType?: string;
+  thumbnail?: string;
+  contentId: string;
+}

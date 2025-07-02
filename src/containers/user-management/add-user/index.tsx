@@ -17,16 +17,16 @@ import ResendModal from '../resend-modal';
 
 const rules = {
   name: {
-    required: { value: true, message: "Name is required." },
+    required: { value: true, message: 'Name is required.' },
     customMessage: 'Full Name is required',
   },
   email: {
-    required: { value: true, message: "Email is required." },
+    required: { value: true, message: 'Email is required.' },
     pattern: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
     customMessage: 'Invalid email address',
   },
   phoneNumber: {
-    required: { value: true, message: "Phone number is required." },
+    required: { value: true, message: 'Phone number is required.' },
     pattern: /^\(\d{3}\) \d{3}-\d{4}$/,
     customMessage: 'Phone Number must be in the format (671) 555-0110',
   },
@@ -59,7 +59,6 @@ const AddUser = () => {
         await userManagementServices.createUser(payload);
         setResendEmail(payload.email);
         setResendModalOpen(true);
-        message.success('User created successfully.');
       } catch (error) {
         message.showError(error, 'Failed to create user.');
       } finally {
@@ -98,7 +97,7 @@ const AddUser = () => {
       },
       {
         label: 'Add New User',
-        onClick: () => { },
+        onClick: () => {},
         active: true,
       },
     ]);
@@ -109,11 +108,14 @@ const AddUser = () => {
       {formik.isSubmitting && <FullPageLoader fullscreen={true} />}
       <Row>
         <Col sm={{ span: 24, offset: 0 }} md={{ span: 20, offset: 2 }} lg={{ span: 18, offset: 3 }}>
-          <Card
-            title="User detail"
-          >
+          <Card title="User detail">
             <Row>
-              <Col sm={{ span: 24, offset: 0 }} md={{ span: 20, offset: 2 }} lg={{ span: 18, offset: 3 }} xl={{ span: 16, offset: 4 }}>
+              <Col
+                sm={{ span: 24, offset: 0 }}
+                md={{ span: 20, offset: 2 }}
+                lg={{ span: 18, offset: 3 }}
+                xl={{ span: 16, offset: 4 }}
+              >
                 <form onSubmit={formik.handleSubmit}>
                   <Row gutter={[24, 24]}>
                     <Col span={24}>
@@ -141,7 +143,9 @@ const AddUser = () => {
                       />
                     </Col>
                     <Col span={24}>
-                      <label>Phone Number <sup>*</sup></label>
+                      <label>
+                        Phone Number <sup>*</sup>
+                      </label>
                       <IMaskInput
                         mask="(000) 000-0000"
                         value={formik.values.phoneNumber}
@@ -150,7 +154,9 @@ const AddUser = () => {
                         name="phoneNumber"
                         element={AntInput}
                         placeholder="Enter phone number"
-                        status={formik.touched.phoneNumber && formik.errors.phoneNumber ? 'error' : ''}
+                        status={
+                          formik.touched.phoneNumber && formik.errors.phoneNumber ? 'error' : ''
+                        }
                         className={`input-phone ant-input${formik.touched.phoneNumber && formik.errors.phoneNumber ? ' error' : ''}`}
                       />
                       {formik.touched.phoneNumber && formik.errors.phoneNumber && (
@@ -168,7 +174,9 @@ const AddUser = () => {
                         placeholder="Select Designation"
                         name="designation"
                         value={formik.values.designation ? [formik.values.designation] : []}
-                        onChange={(value: string[]) => formik.setFieldValue('designation', value || '')}
+                        onChange={(value: string[]) =>
+                          formik.setFieldValue('designation', value || '')
+                        }
                         onBlur={() => formik.setFieldTouched('designation', true)}
                         error={formik.touched.designation && formik.errors.designation}
                       />
@@ -183,7 +191,7 @@ const AddUser = () => {
       <ResendModal
         open={resendModalOpen}
         onClose={() => setResendModalOpen(false)}
-        email={resendEmail || ""}
+        email={resendEmail || ''}
       />
     </>
   );

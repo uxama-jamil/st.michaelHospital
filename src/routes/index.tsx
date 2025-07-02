@@ -13,6 +13,7 @@ import {
 } from '@/constants/route';
 import type { RouteConfig } from '@/constants/route';
 import Error404 from '@/components/errors/error404';
+import TwoFactorAuth from '@/containers/auth/2fa';
 
 // Auth Components
 const AuthLayout = lazy(() => import('@/components/layouts/auth-layout'));
@@ -76,6 +77,16 @@ const authRoutes: RouteConfig[] = [
       <AuthLayout>
         <SetPassword />
       </AuthLayout>
+    ),
+  },
+  {
+    path: AUTH_ROUTES.TWO_FACTOR_AUTH,
+    element: (
+      <RedirectIfAuthenticated>
+        <AuthLayout>
+          <TwoFactorAuth />
+        </AuthLayout>
+      </RedirectIfAuthenticated>
     ),
   },
 ];

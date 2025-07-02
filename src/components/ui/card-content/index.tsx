@@ -29,7 +29,7 @@ export const getIcon = (type: string) => {
 const CardContent = ({
   title,
   contentType,
-  thumbnail,
+  thumbnailAccessUrl,
   createdAt,
   onEdit,
   onDelete,
@@ -69,7 +69,7 @@ const CardContent = ({
             />
             <Image
               alt={title}
-              src={thumbnail}
+              src={thumbnailAccessUrl}
               fallback={PLACEHOLDER_IMG}
               className={styles.image}
               preview={false}

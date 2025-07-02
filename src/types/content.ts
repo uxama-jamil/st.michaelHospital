@@ -73,3 +73,14 @@ export interface ContentApiResponse {
   statusCode: number;
   data: ContentResponse;
 }
+
+export interface FileInfo {
+  type: string;
+  filename: string;
+  mimetype: string;
+}
+
+export interface FileUploadResponse {
+  key: string;
+  signedUrl: string;
+}

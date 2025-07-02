@@ -8,6 +8,8 @@ import { ModuleContentType } from '@/constants/module';
 import type { GenericUploadProps } from '@/types/modules';
 import contentService from '@/services/content-api';
 import { Button } from '@/components/ui';
+import type { FileInfo, FileUploadResponse } from '@/types/content';
+import { extractOriginalFilename } from '@/utils';
 
 const getAcceptType = (type: ModuleContentType): string => {
   switch (type) {
@@ -62,6 +64,7 @@ const FileUpload = ({
   maxSizeMB,
   maxWidth,
   maxHeight,
+  accessUrl,
   value,
   error,
   ...props
@@ -75,8 +78,8 @@ const FileUpload = ({
       setFileList([
         {
           uid: '1',
-          name: value.split('/').pop() || 'uploaded-file',
-          url: value,
+          name: extractOriginalFilename(value) || 'uploaded-file',
+          url: accessUrl ? accessUrl : '',
           status: 'done',
         },
       ]);
@@ -88,7 +91,7 @@ const FileUpload = ({
     fileList,
     showUploadList: {
       showPreviewIcon: false,
-      showRemoveIcon: false, // TODO: until s3 is implemented we will not show the remove icon
+      showRemoveIcon: true,
     },
     customRequest: async ({ file, onSuccess, onError }) => {
       try {
@@ -117,19 +120,33 @@ const FileUpload = ({
             status: 'uploading',
           },
         ]);
+        const fileInfo: FileInfo = {
+          filename: rcFile.name,
+          type: type,
+          mimetype: rcFile.type,
+        };
+        console.log('fileInfo', fileInfo);
+        const uploadUrl = await contentService.getUploadUrl(fileInfo);
+        const uploadUrlData = uploadUrl?.data;
+        console.log('uploadUrl', uploadUrlData);
 
-        const response = await contentService.uploadFile(rcFile);
-        if (!response?.url) throw new Error('No URL returned from server');
+        if (uploadUrlData as FileUploadResponse) {
+          const response = await contentService.uploadFile(rcFile, {
+            ...fileInfo,
+            ...uploadUrlData,
+          });
+          console.log('response from s3', response);
+        }
 
         const uploadedFile: UploadFile = {
           uid,
           name: rcFile.name,
-          url: response.url,
+          url: accessUrl ? accessUrl : '',
           status: 'done',
         };
 
         setFileList([uploadedFile]);
-        onChange(response.url);
+        onChange(uploadUrlData?.key);
         message.success('File uploaded successfully');
         onSuccess?.(uploadedFile);
       } catch (err: any) {
@@ -181,8 +198,6 @@ const FileUpload = ({
           {...uploadProps}
           className={`uploadDragger ${error ? 'error' : ''}`}
           {...props}
-          openFileDialogOnClick={false} // TODO: until s3 is implemented we will not show the file dialog
-          disabled={true} // TODO: until s3 is implemented we will not show the upload button
         >
           <div className={styles.uploadButton}>
             <p className="ant-upload-text">Drag and drop to upload your {type.toLowerCase()}</p>
@@ -192,7 +207,6 @@ const FileUpload = ({
               text={` Upload ${type}`}
               type="primary"
               size="small"
-              disabled={true} // TODO: until s3 is implemented we will not show the upload button
             />
 
             {renderHintText() && <p className="ant-upload-hint">{renderHintText()}</p>}

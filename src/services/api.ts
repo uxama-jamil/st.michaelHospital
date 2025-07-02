@@ -13,7 +13,7 @@ const api = axios.create({
 // Request Interceptor (optional, e.g. to attach tokens)
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token') || '';
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -42,5 +42,3 @@ export const handleApiError = (error: any): never => {
 };
 
 export default api;
-
-

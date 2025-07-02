@@ -20,7 +20,7 @@ type Props = {
   maxTagWidth?: number;
 };
 
-const DynamicTagGroup = ({ keywords, maxTagWidth = 80 }: Props) => {
+export const DynamicTagGroup = ({ keywords, maxTagWidth = 80 }: Props) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [visibleCount, setVisibleCount] = useState(keywords.length);
 
@@ -132,7 +132,7 @@ const Modules = () => {
         title: 'Resources',
         dataIndex: 'contentCount',
         key: 'contentCount',
-        width: '120px',
+        width: '100px',
       },
       {
         title: 'Keywords',
@@ -145,7 +145,7 @@ const Modules = () => {
         title: 'Status',
         dataIndex: 'status',
         key: 'status',
-        width: '200px',
+        width: '100px',
         render: (status: string) => (
           <Space size={'small'}>
             <Tag variant={status === 'Draft' ? 'warning' : 'success'}>

@@ -16,7 +16,6 @@ import UserManagementIcon from '@/assets/images/dashboard/sidebar/user-managemen
 import PlayListIcon from '@/assets/images/dashboard/sidebar/playlist.svg?react';
 import ResetPasswordIcon from '@/assets/images/dashboard/sidebar/reset-password.svg?react';
 
-
 const { Sider } = Layout;
 
 const menuItems = [
@@ -43,30 +42,32 @@ const menuItems = [
 const AppSider = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { logOut } = useAuth();
+  const { logOut, user } = useAuth();
 
   const [userName, setUserName] = useState('N/A');
   const [userEmail, setUserEmail] = useState('N/A');
 
   useEffect(() => {
     try {
-      const userDetailsStr = localStorage.getItem('userDetails');
-      if (userDetailsStr) {
-        const userDetails = JSON.parse(userDetailsStr);
-        setUserName(userDetails.name || 'N/A');
-        setUserEmail(userDetails.email || 'N/A');
+      if (user) {
+        setUserName(user?.name || 'N/A');
+        setUserEmail(user?.email || 'N/A');
       }
     } catch {
       setUserName('N/A');
       setUserEmail('N/A');
     }
-  }, []);
+  }, [user]);
 
   const selectedKey = useMemo(() => {
     if (location.pathname === ROUTE_PATHS.RESET_PASSWORD) return '';
     if (location.pathname === ROUTE_PATHS.PROFILE) return '';
     if (location.pathname.startsWith(USER_ROUTES.BASE)) return 'users';
-    if (location.pathname.startsWith(PLAYLIST_ROUTES.BASE)) return 'playlist';
+    if (
+      location.pathname.startsWith(PLAYLIST_ROUTES.BASE) ||
+      location.pathname.includes('playlist')
+    )
+      return 'playlist';
     return 'modules';
   }, [location.pathname]);
 
@@ -100,7 +101,7 @@ const AppSider = () => {
         <Col className={styles.siderFooter}>
           <Row align={'middle'}>
             <Col span={24}>
-              <Link to={ROUTE_PATHS.RESET_PASSWORD} className='w-100'>
+              <Link to={ROUTE_PATHS.RESET_PASSWORD} className="w-100">
                 <Button
                   type="link"
                   className={`reset-password ${location.pathname === ROUTE_PATHS.RESET_PASSWORD ? styles.active : ''}`}
@@ -115,11 +116,14 @@ const AppSider = () => {
               <Divider className={styles.divider} />
             </Col>
             <Col span={24}>
-              <Row className={`cursor-pointer ${location.pathname === ROUTE_PATHS.PROFILE ? styles.profile : ''}`} gutter={[12, 12]} wrap={false} justify={'space-between'} align="middle">
-                <Col>
-                  <Avatar size={36} icon={<UserOutlined />} />
-                </Col>
-                <Col onClick={() => navigate(ROUTE_PATHS.PROFILE)} >
+              <Row
+                className={`cursor-pointer ${location.pathname === ROUTE_PATHS.PROFILE ? styles.profile : ''}`}
+                gutter={[12, 12]}
+                wrap={false}
+                justify={'center'}
+                align="middle"
+              >
+                <Col onClick={() => navigate(ROUTE_PATHS.PROFILE)}>
                   <Row>
                     <Col span={24}>
                       <p className={styles.name}>{truncateText(userName, 13)}</p>

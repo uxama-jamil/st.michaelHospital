@@ -18,18 +18,20 @@ import { KEYWORDS_API } from '@/constants/api';
 import FullPageLoader from '@/components/ui/spin';
 import { mockImages } from '@/constants/image-links';
 import { ButtonType } from '@/constants/button';
+import { ModuleContentType } from '@/constants/module';
 
 const AddModule = () => {
   const message = useMessage();
   const { id } = useParams<{ id: string }>();
 
   const [isLoading, setIsLoading] = useState(false);
+  const [moduleData, setModuleData] = useState(null);
   const [keywords, setKeywords] = useState([]);
   const [initialValues, setInitialValues] = useState<ModuleForm>({
     title: '',
     keywordIds: [],
     description: '',
-    thumbnail: mockImages[Math.floor(Math.random() * mockImages.length)],
+    thumbnail: '',
   });
   const { setTitle, setActions, setBreadcrumbs } = useHeader();
   const rules = {
@@ -47,7 +49,7 @@ const AddModule = () => {
       max: { value: 500, message: 'Description must not exceed 500 characters.' },
     },
     thumbnail: {
-      required: false,
+      required: { value: true, message: 'Banner image is required..' },
     },
   };
 
@@ -60,6 +62,7 @@ const AddModule = () => {
         const response = await api.getModule(id);
         const data = response?.data;
         if (data) {
+          setModuleData(data);
           // Normalize data for form fields
           const normalized = {
             title: data.title || '',
@@ -226,12 +229,13 @@ const AddModule = () => {
                     <Col span={24}>
                       <FileUpload
                         label="Thumbnail"
-                        type="image"
+                        type={ModuleContentType.Image}
                         required
+                        accessUrl={moduleData?.thumbnailAccessUrl || ''}
                         name="thumbnail"
                         value={formik.values.thumbnail}
                         onChange={(value) => {
-                          console.log('value', value);
+                          formik.setFieldValue('thumbnail', value);
                         }}
                         onBlur={formik.handleBlur}
                         error={formik.touched.thumbnail && formik.errors.thumbnail}

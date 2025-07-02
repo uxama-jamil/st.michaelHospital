@@ -11,3 +11,6 @@ export const KEYWORDS_API = '/keyword';
 export const CONTENT_API_BASE = '/content';
 export const CONTENT_API = '/content/:id';
 export const CONTENT_API_UPDATE = '/content/update';
+export const CONTENT_API_ALL = '/content/list/all';
+
+export const S3_API_BASE = '/s3/upload-url';
