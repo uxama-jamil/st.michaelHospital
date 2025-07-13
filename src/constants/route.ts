@@ -4,7 +4,7 @@ export const ROUTE_PATHS = {
   FORGOT_PASSWORD: '/forgot-password',
   EMAIL_SENT: '/email-sent',
   SET_PASSWORD: '/set-password',
-  TWO_FACTOR_AUTH: '/2fa',
+  TWO_FACTOR_AUTH: '/verify-otp',
   RESET_PASSWORD: '/reset-password',
   PROFILE: '/profile',
   // Module routes

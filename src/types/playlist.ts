@@ -1,3 +1,5 @@
+import type { ModuleContentStatus } from '@/constants/module';
+
 // Error structure returned from backend
 export interface ApiError {
   message: string;
@@ -33,7 +35,7 @@ export interface Playlist {
   thumbnail: string;
   createdAt: string;
   updatedAt: string;
-  user: User;
+  createdBy: User;
   keywords: Keyword[];
   content: Content[];
 }
@@ -91,27 +93,29 @@ export interface Meta {
 
 // Used for creating/updating playlist via form
 
-export interface PlaylistContent {
-  contentId: string;
-  sortOrder: number;
-}
-
 export interface PlaylistPayload {
   name: string;
   description: string;
   thumbnail: string;
-  status?: 'draft' | 'published';
+  status?: ModuleContentStatus;
   keywordIds: string[];
   content: PlaylistContent[];
 }
-
+export interface PlaylistCreateResponse {
+  status: boolean;
+  message: string;
+  statusCode: number;
+  data: {
+    id: string;
+  };
+}
 export type PlaylistForm = PlaylistPayload;
 
 export interface PlaylistResponse {
   id: string;
   name: string;
   description: string;
-  status: 'draft' | 'published';
+  status: ModuleContentStatus;
   thumbnail: string;
   thumbnailAccessUrl: string;
   createdAt: string;
@@ -133,5 +137,6 @@ export interface PlaylistContent {
   title?: string;
   contentType?: string;
   thumbnail?: string;
+  thumbnailAccessUrl?: string;
   contentId: string;
 }

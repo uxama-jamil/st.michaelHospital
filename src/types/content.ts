@@ -71,7 +71,17 @@ export interface ContentApiResponse {
   status: boolean;
   message: string;
   statusCode: number;
-  data: ContentResponse;
+  data: {
+    data: ContentResponse;
+    meta: {
+      page: number;
+      take: number;
+      itemCount: number;
+      pageCount: number;
+      hasPreviousPage: boolean;
+      hasNextPage: boolean;
+    };
+  };
 }
 
 export interface FileInfo {

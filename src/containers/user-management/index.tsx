@@ -13,6 +13,8 @@ import { useMessage } from '@/context/message';
 import { useCallback } from 'react';
 import ResendModal from './resend-modal';
 import FullPageLoader from '@/components/ui/spin';
+import { useAuth } from '@/context/auth-provider';
+import { USER_MANAGEMENT_ORDER, USER_MANAGEMENT_PAGE_SIZE } from '@/constants/api';
 
 const UserManagement = () => {
   const { setTitle, setSubtitle, setActions, setBreadcrumbs } = useHeader();
@@ -25,16 +27,17 @@ const UserManagement = () => {
   const [users, setUsers] = useState<UserDetails[]>([]);
   const [pagination, setPagination] = useState<TablePaginationConfig>({
     current: 1,
-    pageSize: 10,
+    pageSize: USER_MANAGEMENT_PAGE_SIZE,
     total: 0,
   });
   const [confirmModal, setConfirmModal] = useState<{ open: boolean; user?: UserDetails }>({
     open: false,
   });
+  const { user: userDetails } = useAuth();
 
   useEffect(() => {
     setTitle('User Management');
-    setSubtitle('');
+    setSubtitle(`Total: ${pagination.total}`);
     setActions([
       <Button
         key="add"
@@ -45,12 +48,16 @@ const UserManagement = () => {
       />,
     ]);
     setBreadcrumbs([]);
-  }, []);
+  }, [pagination.total]);
 
   const fetchUsers = async (page: number, pageSize: number) => {
     try {
       setLoading(true);
-      const { data, meta } = await userManagementServices.getAllUsers(page, pageSize);
+      const { data, meta } = await userManagementServices.getAllUsers(
+        page,
+        pageSize,
+        USER_MANAGEMENT_ORDER,
+      );
       setUsers(data);
       setPagination((prev) => ({
         ...prev,
@@ -72,7 +79,9 @@ const UserManagement = () => {
 
   const handleEditOrView = useCallback(
     (id: string, isViewOnly: boolean) => {
-      navigate(USER_ROUTES.EDIT.replace(':id', id), { state: { isViewOnly } });
+      navigate(USER_ROUTES.EDIT.replace(':id', encodeURIComponent(id)), {
+        state: { isViewOnly },
+      });
     },
     [navigate],
   );
@@ -80,10 +89,13 @@ const UserManagement = () => {
   const handleDelete = useCallback(
     async (id: string) => {
       try {
+        setConfirmModal({ open: false });
+        setResendLoader(true);
         await userManagementServices.deleteUser(id);
         message.success('User deleted successfully.');
         fetchUsers(pagination.current!, pagination.pageSize!);
       } catch (error) {
+        setResendLoader(false);
         message.showError(error, 'Failed to delete user.');
       }
     },
@@ -110,11 +122,7 @@ const UserManagement = () => {
   );
   const currentUserId = (() => {
     try {
-      const userDetailsStr = localStorage.getItem('userDetails');
-      if (userDetailsStr) {
-        const userDetails = JSON.parse(userDetailsStr);
-        return userDetails.id;
-      }
+      return userDetails?.id;
     } catch {}
     return null;
   })();
@@ -173,7 +181,7 @@ const UserManagement = () => {
         render: (_: any, record: UserDetails) => (
           <Space size="middle">
             <EditOutlined onClick={() => handleEditOrView(record.id, false)} />
-            {record.id !== currentUserId && (
+            {!record.defaultAdmin && record.id !== currentUserId && (
               <DeleteOutlined
                 onClick={(e) => {
                   e.stopPropagation();

@@ -11,6 +11,8 @@ export interface UserDetails {
   lastLogin: string;
   createdAt: string;
   updatedAt: string;
+  picture?: string;
+  defaultAdmin: boolean;
 }
 
 export interface ApiResponse {

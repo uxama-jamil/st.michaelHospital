@@ -1,84 +1,55 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useHeader } from '@/context/header';
 import { Button, Card } from '@/components/ui';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Row, Col, Space, Checkbox, Skeleton } from 'antd';
+import { Row, Col, Space, Checkbox } from 'antd';
 import AntInput from '@/components/ui/input';
 import AntTextArea from '@/components/ui/text-area';
 import AntDropdown from '@/components/ui/dropdown';
 import FileUpload from '@/components/ui/file-uploader';
 import { useFormik } from 'formik';
-import { validate } from '@/utils';
+import { handleUploadFile, validate } from '@/utils';
 
 import type { PlaylistContent, PlaylistForm, PlaylistResponse } from '@/types/playlist';
 import { useMessage } from '@/context/message';
 import keyword from '@/services/api';
-import { KEYWORDS_API } from '@/constants/api';
+import {
+  CONTENT_DROP_DOWN_ORDER,
+  CONTENT_DROP_DOWN_PAGE_SIZE,
+  KEYWORDS_API,
+} from '@/constants/api';
 import FullPageLoader from '@/components/ui/spin';
 import { ButtonType } from '@/constants/button';
 import { PLAYLIST_ROUTES } from '@/constants/route';
-import { ModuleContentType } from '@/constants/module';
+import { ModuleContentStatus, ModuleContentType } from '@/constants/module';
 
 import contentApi from '@/services/content-api';
 import styles from './style.module.scss';
-import { Image } from 'antd';
-import { getIcon, PLACEHOLDER_IMG } from '@/components/ui/card-content';
 import playlistServices from '@/services/playlist-api';
+import { sanitizeInput } from '@/utils/sanitize';
+import type { ContentResponse, FileInfo } from '@/types/content';
+import { addPlaylistRules } from '@/utils/rules';
+import RenderContent from './render-content';
 
-const RenderContent = ({ contentType, title, thumbnail }) => {
-  const [imgLoading, setImgLoading] = useState(true);
-  return (
-    <Card
-      hoverable={true}
-      variant={'borderless'}
-      className={`${styles.cardContent} content-card`}
-      cover={
-        <div className={styles.cover}>
-          <Skeleton.Image
-            style={{
-              display: imgLoading ? 'block' : 'none',
-              width: '100%',
-              height: '100%',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-            }}
-            active
-          />
-          <Image
-            alt={title}
-            src={thumbnail}
-            fallback={PLACEHOLDER_IMG}
-            className={styles.image}
-            preview={false}
-            onLoad={() => setImgLoading(false)}
-            onError={() => setImgLoading(false)}
-            style={{
-              display: imgLoading ? 'none' : 'block',
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              borderRadius: 8,
-            }}
-          />
-          <div className={styles.overlay}>
-            <span className={styles.playIcon}>{getIcon(contentType)}</span>
-          </div>
-        </div>
-      }
-    ></Card>
-  );
-};
 const AddPlayList = () => {
   const message = useMessage();
   const [isLoading, setIsLoading] = useState(true);
   const [options, setOptions] = useState([]);
   const { id } = useParams<{ id: string }>();
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchValue, setSearchValue] = useState<string>('');
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [thumbnailDetails, setThumbnailDetails] = useState<{
+    isEditMode: boolean;
+    file: File;
+    fileInfo: FileInfo;
+  } | null>(null);
+  const fetched = useRef({
+    keywords: false,
+    playlist: false,
+  });
   const [playlistData, setPlaylistData] = useState<PlaylistResponse | null>(null);
-  const [dropdownFetching, setDropdownFetching] = useState(false);
 
   const [keywords, setKeywords] = useState([]);
   const [initialValues, setInitialValues] = useState<PlaylistForm>({
@@ -88,29 +59,9 @@ const AddPlayList = () => {
     thumbnail: '',
     content: [],
   });
+  const [searchText, setSearchText] = useState('');
   const [selectedContent, setSelectedContent] = useState<PlaylistContent[]>([]);
   const { setTitle, setActions, setBreadcrumbs, setSubtitle } = useHeader();
-  const rules = {
-    name: {
-      required: { value: true, message: 'Playlist name is required.' },
-      min: { value: 3, message: 'Playlist name must be between 3 and 50 characters.' },
-      max: { value: 50, message: 'Playlist name must be between 3 and 50 characters.' },
-    },
-    keywordIds: {
-      required: false,
-    },
-    description: {
-      required: { value: true, message: 'Description is required.' },
-      min: { value: 3, message: 'Description must be at least 3 characters.' },
-      max: { value: 500, message: 'Description must not exceed 500 characters.' },
-    },
-    thumbnail: {
-      required: { value: true, message: 'Thumbnail is required.' },
-    },
-    content: {
-      required: { value: true, message: 'Content is required.' },
-    },
-  };
 
   const fetchPlaylist = async () => {
     try {
@@ -120,6 +71,10 @@ const AddPlayList = () => {
       if (response) {
         // Normalize data for form fields
         setPlaylistData(response);
+        setThumbnailDetails((prev) => ({
+          ...prev,
+          isEditMode: true,
+        }));
       } else {
         message.error('Playlist data not found.');
       }
@@ -129,6 +84,10 @@ const AddPlayList = () => {
       setIsLoading(false);
     }
   };
+  const filteredOptions = useMemo(() => {
+    if (!searchText) return options;
+    return options.filter((opt) => opt.title?.toLowerCase().includes(searchText.toLowerCase()));
+  }, [searchText, options]);
 
   const handlePlaylistData = () => {
     const selectedMapped =
@@ -170,7 +129,7 @@ const AddPlayList = () => {
 
   // Fetch module data
   useEffect(() => {
-    if (playlistData && !dropdownFetching) {
+    if (playlistData) {
       handlePlaylistData();
     }
   }, [playlistData, id]);
@@ -178,7 +137,7 @@ const AddPlayList = () => {
   const getKeywords = async () => {
     try {
       const response = await keyword.get(KEYWORDS_API);
-      const data = response?.data.data.map((keyword: { [key: string]: any }) => {
+      const data = response?.data?.data?.map((keyword: { [key: string]: any }) => {
         return { label: keyword.name, value: keyword.id };
       });
       setKeywords(data);
@@ -193,21 +152,25 @@ const AddPlayList = () => {
     onSubmit: (values) => {
       handleSubmit(values);
     },
-    validate: (values) => validate(values, rules),
+    validate: (values) => validate(values, addPlaylistRules),
   });
   const handleSubmit = async (values: PlaylistForm) => {
     try {
       const payload = { ...values };
-      payload['status'] = 'draft';
+      payload['status'] = ModuleContentStatus.Draft;
 
       setIsLoading(true);
+      if (thumbnailDetails?.file) {
+        const key = await handleUploadFile(thumbnailDetails.file, thumbnailDetails.fileInfo);
+        payload.thumbnail = key;
+      }
 
       if (id) {
         payload['id'] = id;
         const response = await playlistServices.updatePlayList(id, payload);
         const data = response?.data;
         if (data) {
-          message.success(response?.message || 'Playlist updated successfully.');
+          message.success('Playlist updated successfully.');
           navigate(PLAYLIST_ROUTES.DETAIL.replace(':id', id));
         }
       } else {
@@ -265,23 +228,33 @@ const AddPlayList = () => {
     setCurrentPage(1);
     fetchContentData(true);
 
-    getKeywords();
-
-    if (id) {
-      fetchPlaylist();
+    if (!fetched.current.keywords) {
+      getKeywords();
+      fetched.current.keywords = true;
     }
+
+    if (id && !fetched.current.playlist) {
+      fetchPlaylist();
+      fetched.current.playlist = true;
+    }
+
     // eslint-disable-next-line
   }, []);
 
   const fetchContentData = async (reset = false) => {
     if (loadingMore || !hasMore) return;
-    setDropdownFetching(true);
+
     setLoadingMore(true);
     const pageToFetch = reset ? 1 : currentPage;
     try {
-      const response = await contentApi.getAllContent(pageToFetch, 30, 'ASC');
-      const data = response?.data?.data || [];
-      const meta = response?.data?.meta || {};
+      const response = await contentApi.getAllContent(
+        pageToFetch,
+        CONTENT_DROP_DOWN_PAGE_SIZE,
+        CONTENT_DROP_DOWN_ORDER,
+      );
+      const raw = response?.data;
+      const data: ContentResponse[] = Array.isArray(raw.data) ? raw.data : [];
+      const meta = raw.meta;
 
       if (data.length > 0) {
         setOptions((prev) => {
@@ -293,7 +266,7 @@ const AddPlayList = () => {
               ];
           return newData;
         });
-        setHasMore(meta.hasNextPage);
+        setHasMore(meta?.hasNextPage);
         setCurrentPage(reset ? 2 : currentPage + 1);
       } else {
         if (reset) setOptions([]);
@@ -304,37 +277,68 @@ const AddPlayList = () => {
     } finally {
       setLoadingMore(false);
       setIsLoading(false);
-      setDropdownFetching(false);
     }
   };
 
-  const renderSelected = () => (
-    <div className={styles.selectedGrid}>
-      {selectedContent.map((selectedItem) => {
-        const item = options.find((opt) => opt.id === selectedItem.contentId);
-        if (!item) return null;
+  const renderSelected = () => {
+    // Memoized map of options + selected data fallback
+    const contentMap = useMemo(() => {
+      const map = new Map();
 
-        return (
-          <div
-            key={item.id}
-            className={styles.playlistCard}
-            onClick={() => {
-              const updated = selectedContent.filter((c) => c.contentId !== item.id);
-              setSelectedContent(updated);
-              formik.setFieldValue('content', updated);
-            }}
-          >
-            <Checkbox className={styles.checkbox} checked />
-            <RenderContent
-              contentType={item.contentType}
-              title={item.title}
-              thumbnail={item.thumbnailAccessUrl}
-            />
-          </div>
-        );
-      })}
-    </div>
-  );
+      // Populate from options first
+      options.forEach((item) => {
+        map.set(item.id, item);
+      });
+
+      // Ensure selectedContent is also mapped, even if missing in options
+      selectedContent.forEach((sc) => {
+        if (!map.has(sc.contentId)) {
+          // Try to find fallback from playlistData
+          const fallback = playlistData?.content.find((c) => c.contentId === sc.contentId);
+          if (fallback) {
+            map.set(sc.contentId, {
+              id: fallback.contentId,
+              title: fallback.title,
+              thumbnail: fallback.thumbnail,
+              thumbnailAccessUrl: fallback.thumbnailAccessUrl,
+              contentType: fallback.contentType || '',
+            });
+          }
+        }
+      });
+
+      return map;
+    }, [options, selectedContent, playlistData]);
+
+    return (
+      <div className={styles.selectedGrid}>
+        {selectedContent.map((selectedItem) => {
+          const item = contentMap.get(selectedItem.contentId);
+          if (!item) return null;
+
+          return (
+            <div
+              key={item.id}
+              className={styles.playlistCard}
+              onClick={() => {
+                const updated = selectedContent.filter((c) => c.contentId !== item.id);
+                setSelectedContent(updated);
+                formik.setFieldValue('content', updated);
+              }}
+            >
+              <Checkbox className={styles.checkbox} checked />
+              <RenderContent
+                contentType={item.contentType}
+                title={item.title}
+                thumbnail={item.thumbnailAccessUrl}
+              />
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <>
       {isLoading && <FullPageLoader fullscreen={true} />}
@@ -364,6 +368,7 @@ const AddPlayList = () => {
                         style={{ width: '100%' }}
                         placeholder="Select"
                         multiple
+                        showSearch={false}
                         name="keywordIds"
                         value={formik.values.keywordIds}
                         onChange={(value) => {
@@ -395,10 +400,18 @@ const AddPlayList = () => {
                         type={ModuleContentType.Image}
                         required
                         accessUrl={playlistData?.thumbnailAccessUrl || ''}
+                        isEditMode={thumbnailDetails?.isEditMode}
                         name="thumbnail"
                         value={formik.values.thumbnail}
                         onChange={(value) => {
+                          setThumbnailDetails((prev) => ({
+                            ...prev,
+                            isEditMode: false,
+                          }));
                           formik.setFieldValue('thumbnail', value);
+                        }}
+                        fileDetails={(value) => {
+                          setThumbnailDetails(value);
                         }}
                         onBlur={formik.handleBlur}
                         error={formik.touched.thumbnail && formik.errors.thumbnail}
@@ -408,25 +421,37 @@ const AddPlayList = () => {
                       <AntDropdown
                         label="Content"
                         mode="multiple"
+                        searchValue={searchValue}
                         value={selectedContent.map((item) => item.contentId)}
-                        onChange={(value: string[]) => {
-                          const updated = value.map((id, index) => ({
+                        onChange={(value) => {
+                          const ids = Array.isArray(value) ? value.map(String) : [String(value)];
+                          const updated = ids.map((id, index) => ({
                             contentId: id,
                             sortOrder: index + 1,
                           }));
-
                           setSelectedContent(updated);
                           formik.setFieldValue('content', updated);
+                          setSearchText('');
                         }}
                         placeholder="Select"
                         required
-                        onBlur={() => formik.setFieldTouched('content', true)}
+                        onBlur={() => {
+                          formik.setFieldTouched('content', true);
+                          setSearchText('');
+                        }}
                         loading={loadingMore}
-                        error={formik.touched.content && formik.errors.content}
-                        options={options.map((item) => ({
-                          label: item.title,
-                          value: item.id,
-                        }))}
+                        error={
+                          typeof formik.errors.content === 'string'
+                            ? formik.touched.content && formik.errors.content
+                            : undefined
+                        }
+                        showSearch
+                        filterOption={false}
+                        onSearch={(text) => {
+                          const clean = sanitizeInput(text);
+                          setSearchValue(clean);
+                          setSearchText(clean);
+                        }}
                         onPopupScroll={(e) => {
                           const target = e.target as HTMLDivElement;
                           if (
@@ -434,10 +459,13 @@ const AddPlayList = () => {
                             hasMore &&
                             target.scrollTop + target.offsetHeight >= target.scrollHeight - 100
                           ) {
-                            fetchContentData(); // Only fetch when near bottom and not already loading
+                            fetchContentData(); // loads more into `options`
                           }
                         }}
-                        filterOption={false}
+                        options={filteredOptions.map((item) => ({
+                          label: item.title,
+                          value: item.id,
+                        }))}
                         style={{ width: '100%' }}
                       />
 

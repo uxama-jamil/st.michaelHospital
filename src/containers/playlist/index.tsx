@@ -10,25 +10,28 @@ import type { Playlist } from '@/types/playlist';
 import type { TablePaginationConfig } from 'antd/es/table';
 import { useMessage } from '@/context/message';
 import { DynamicTagGroup } from '../module';
+import { PLAYLIST_ORDER, PLAYLIST_PAGE_SIZE } from '@/constants/api';
+import FullPageLoader from '@/components/ui/spin';
+import { ModuleContentStatus } from '@/constants/module';
 
 const PlayList = () => {
   const { setTitle, setSubtitle, setActions, setBreadcrumbs } = useHeader();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const message = useMessage();
-  const [users, setPlayList] = useState<Playlist[]>([]);
+  const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [pagination, setPagination] = useState<TablePaginationConfig>({
     current: 1,
-    pageSize: 10,
+    pageSize: PLAYLIST_PAGE_SIZE,
     total: 0,
   });
-  const [confirmModal, setConfirmModal] = useState<{ open: boolean; user?: Playlist }>({
+  const [confirmModal, setConfirmModal] = useState<{ open: boolean; playlist?: Playlist }>({
     open: false,
   });
 
   useEffect(() => {
     setTitle('Playlist');
-    setSubtitle('Total: 6');
+    setSubtitle(`Total: ${pagination.total}`);
     setActions([
       <Button
         key="Add New Playlist"
@@ -39,14 +42,14 @@ const PlayList = () => {
       />,
     ]);
     setBreadcrumbs([]);
-  }, []);
+  }, [pagination.total]);
 
   const fetchPlayList = useCallback(
     async (page: number, pageSize: number) => {
       try {
         setLoading(true);
-        const { data, meta } = await playListServices.getPlaylist(page, pageSize);
-        setPlayList(data);
+        const { data, meta } = await playListServices.getPlaylist(page, pageSize, PLAYLIST_ORDER);
+        setPlaylists(data);
         setPagination((prev) => ({
           ...prev,
           current: meta?.page ?? 1,
@@ -68,7 +71,9 @@ const PlayList = () => {
 
   const handleEditOrView = useCallback(
     (id: string, isViewOnly: boolean) => {
-      navigate(PLAYLIST_ROUTES.EDIT.replace(':id', id), { state: { isViewOnly } });
+      navigate(PLAYLIST_ROUTES.EDIT.replace(':id', encodeURIComponent(id)), {
+        state: { isViewOnly },
+      });
     },
     [navigate],
   );
@@ -76,11 +81,15 @@ const PlayList = () => {
   const handleDelete = useCallback(
     async (id: string) => {
       try {
+        setConfirmModal({ open: false });
+        setLoading(true);
         await playListServices.deletePlayList(id);
         message.success('Playlist deleted successfully.');
         fetchPlayList(pagination.current!, pagination.pageSize!);
       } catch (error) {
         message.showError(error, 'Failed to delete playlist.');
+      } finally {
+        setLoading(false);
       }
     },
     [message, fetchPlayList, pagination.current, pagination.pageSize],
@@ -96,9 +105,9 @@ const PlayList = () => {
       },
       {
         title: 'Created by',
-        key: 'user',
-        dataIndex: 'user',
-        render: (_: any, record: Playlist) => record.user?.userName ?? 'N/A',
+        key: 'createdBy',
+        dataIndex: 'createdBy',
+        render: (_: any, record: Playlist) => record.createdBy?.userName ?? 'N/A',
       },
       {
         title: 'Total Resources',
@@ -112,7 +121,8 @@ const PlayList = () => {
         key: 'keywords',
         dataIndex: 'keywords',
         width: 280,
-        render: (keywords: any[]) => <DynamicTagGroup keywords={keywords.map((k) => k?.name)} />,
+        render: (keywords: any[]) =>
+          keywords.length > 0 ? <DynamicTagGroup keywords={keywords.map((k) => k?.name)} /> : 'N/A',
       },
       {
         title: 'Status',
@@ -120,8 +130,16 @@ const PlayList = () => {
         key: 'status',
         render: (status: string) => {
           return (
-            <Tag variant={status.toLowerCase() === 'draft' ? 'warning' : 'success'}>
-              {status.toLowerCase() === 'draft' ? 'Draft' : 'Published'}
+            <Tag
+              variant={
+                status.toLowerCase() === ModuleContentStatus.Draft.toLowerCase()
+                  ? 'warning'
+                  : 'success'
+              }
+            >
+              {status.toLowerCase() === ModuleContentStatus.Draft.toLowerCase()
+                ? ModuleContentStatus.Draft
+                : ModuleContentStatus.Published}
             </Tag>
           );
         },
@@ -132,7 +150,7 @@ const PlayList = () => {
         width: '120px',
         render: (_: any, record: Playlist) => {
           const status = record.status.toLowerCase();
-          console.log('status', status);
+
           return (
             <Space size="middle">
               <EditOutlined
@@ -142,13 +160,15 @@ const PlayList = () => {
               />
               <DeleteOutlined
                 onClick={() =>
-                  status !== 'published' && setConfirmModal({ open: true, user: record })
+                  status !== 'published' && setConfirmModal({ open: true, playlist: record })
                 }
                 className={status === 'published' ? 'action-disabled' : ''}
                 title={status === 'published' ? 'Cannot delete published playlist' : 'Delete'}
               />
               <RightOutlined
-                onClick={() => navigate(PLAYLIST_ROUTES.DETAIL.replace(':id', record.id))}
+                onClick={() =>
+                  navigate(PLAYLIST_ROUTES.DETAIL.replace(':id', encodeURIComponent(record.id)))
+                }
               />
             </Space>
           );
@@ -160,11 +180,12 @@ const PlayList = () => {
 
   return (
     <>
+      {loading && <FullPageLoader fullscreen={true} />}
       <Row gutter={[16, 16]} justify="end">
         <Col span={24}>
           <Table
             columns={columns}
-            data={users}
+            data={playlists}
             rowKey="id"
             loading={loading}
             showPagination={true}
@@ -190,7 +211,8 @@ const PlayList = () => {
         </Col>
       </Row>
       <AntModal
-        open={confirmModal.open}
+        visible={confirmModal.open}
+        setVisible={(open) => setConfirmModal({ open })}
         title="Confirm"
         footer={[
           <Button key="cancel" type="default" onClick={() => setConfirmModal({ open: false })}>
@@ -200,8 +222,8 @@ const PlayList = () => {
             key="delete"
             type="primary"
             onClick={async () => {
-              if (confirmModal.user) {
-                await handleDelete(confirmModal.user.id);
+              if (confirmModal.playlist) {
+                await handleDelete(confirmModal.playlist.id);
               }
               setConfirmModal({ open: false });
             }}
@@ -211,7 +233,7 @@ const PlayList = () => {
         ]}
         onCancel={() => setConfirmModal({ open: false })}
       >
-        {`Are you sure you want to delete playlist ${confirmModal.user?.name}?`}
+        {`Are you sure you want to delete playlist ${confirmModal.playlist?.name}?`}
       </AntModal>
     </>
   );

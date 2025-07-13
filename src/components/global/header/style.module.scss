@@ -1,28 +1,35 @@
 .appHeader {
-    height: auto;
-    border-bottom: toRem(2) solid $border-color;
+  height: auto;
+  border-bottom: toRem(2) solid $border-color;
 
-    h2 {
-        font-size: toRem(24);
-        font-weight: $font-semibold;
-        line-height: normal;
-        display: inline-block;
+  h2 {
+    font-size: toRem(24);
+    font-weight: $font-semibold;
+    line-height: normal;
+    display: inline-block;
+  }
+
+  .subtitle {
+    font-size: toRem(12);
+    font-weight: $font-semibold;
+    color: $input-placeholder-color;
+    line-height: normal;
+  }
+
+  .breadcrumbs {
+    li {
+      cursor: pointer;
     }
+  }
 
+  .headerTitle {
+    display: inline-block;
+  }
+
+  .headerTitleContainer {
+    display: flex;
     .subtitle {
-        font-size: toRem(12);
-        font-weight: $font-semibold;
-        color: $input-placeholder-color;
-        line-height: normal;
+      padding-top: toRem(8);
     }
-
-    .breadcrumbs {
-        li {
-            cursor: pointer;
-        }
-    }
-
-    .headerTitle {
-        display: inline-block;
-    }
+  }
 }

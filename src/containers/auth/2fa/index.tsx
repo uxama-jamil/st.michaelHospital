@@ -1,8 +1,5 @@
 import { Button } from '@/components/ui';
 
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import emailIcon from '@assets/svg/email-sent.svg';
-
 import { Input, Row } from 'antd';
 import { Col } from 'antd';
 import api from '@/services/api';
@@ -12,6 +9,8 @@ import FullPageLoader from '@/components/ui/spin';
 import type { OTPProps } from 'antd/es/input/OTP';
 import styles from './style.module.scss';
 import { useAuth } from '@/context/auth-provider';
+import { COOLDOWN_TIME, OTP_LENGTH } from '@/constants/auth';
+import { AUTH_API_OTP, AUTH_API_OTP_RESEND } from '@/constants/api';
 
 const TwoFactorAuth = () => {
   const message = useMessage();
@@ -33,21 +32,20 @@ const TwoFactorAuth = () => {
 
   useEffect(() => {
     if (user) {
-      setCooldown(60);
+      setCooldown(COOLDOWN_TIME);
     }
   }, [user]);
 
   const onChange: OTPProps['onChange'] = (text) => {
-    console.log('onChange:', text);
     setOtp(text);
-    console.log('otp in onChange', otp);
+
     if (error) setError('');
   };
 
   const onInput: OTPProps['onInput'] = (value) => {
     const joinedValue = value.join('');
     setOtp(joinedValue); // Set value on every keypress
-    console.log('otp in onInput', otp);
+
     if (error) setError('');
   };
 
@@ -59,14 +57,14 @@ const TwoFactorAuth = () => {
   const handleResend = () => {
     setLoading(true);
     api
-      .post('/auth/resend-otp', { email: user?.email })
+      .post(AUTH_API_OTP_RESEND, { email: user?.email })
       .then((res) => {
         if (res.status) {
           message.success('OTP sent successfully. Please check your email.');
-          setCooldown(60);
+          setCooldown(COOLDOWN_TIME);
         }
       })
-      .catch((error) => {
+      .catch(() => {
         message.error('Invalid email.');
       })
       .finally(() => {
@@ -75,13 +73,13 @@ const TwoFactorAuth = () => {
   };
   const handleSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    console.log('otp in handleSubmit', otp);
+    const regex = new RegExp(`^\\d{${OTP_LENGTH}}$`);
     // Basic validation
     if (!otp) {
       setError('Please enter the verification code.');
       return;
-    } else if (otp.length !== 5 || !/^\d{5}$/.test(otp)) {
-      setError('OTP must be exactly 5 digits.');
+    } else if (otp.length !== OTP_LENGTH || !regex.test(otp)) {
+      setError(`OTP must be exactly ${OTP_LENGTH} digits.`);
       return;
     }
 
@@ -89,7 +87,7 @@ const TwoFactorAuth = () => {
     setError('');
 
     api
-      .post('/auth/otp', { email: user?.email, otp })
+      .post(AUTH_API_OTP, { email: user?.email, otp })
       .then((res) => {
         if (res) {
           const token = res?.data?.data?.token?.accessToken;
@@ -99,7 +97,7 @@ const TwoFactorAuth = () => {
           }
         }
       })
-      .catch((error) => {
+      .catch(() => {
         message.error('Invalid or expired OTP.');
       })
       .finally(() => {
@@ -120,7 +118,7 @@ const TwoFactorAuth = () => {
           </Col>
           <Col span={24}>
             <Input.OTP
-              length={5}
+              length={OTP_LENGTH}
               status={error ? 'error' : ''}
               value={otp}
               {...sharedProps}

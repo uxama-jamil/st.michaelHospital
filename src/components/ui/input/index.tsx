@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Input } from 'antd';
 import { EyeInvisibleOutlined, EyeOutlined } from '@ant-design/icons';
 import styles from './style.module.scss';
+import { sanitizeInput } from '@/utils/sanitize';
 
 interface InputProps extends React.ComponentProps<typeof Input> {
   type?: string;
@@ -17,6 +18,7 @@ const AntInput: React.FC<InputProps> = (props) => {
     eye = false,
     error,
     required,
+    onChange,
     className = styles.antInput,
     ...rest
   } = props;
@@ -24,6 +26,12 @@ const AntInput: React.FC<InputProps> = (props) => {
 
   const isPassword = type === 'password' && eye;
   const inputType = isPassword && showPassword ? 'text' : type;
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const sanitizedValue = sanitizeInput(e.target.value);
+    e.target.value = sanitizedValue;
+    onChange?.(e);
+  };
 
   return (
     <div className={styles.inputWrapper}>
@@ -40,10 +48,17 @@ const AntInput: React.FC<InputProps> = (props) => {
           className={className}
           status={error && required ? 'error' : ''}
           {...rest}
+          onChange={handleChange}
           iconRender={(visible) => eye && (!visible ? <EyeInvisibleOutlined /> : <EyeOutlined />)}
         />
       ) : (
-        <Input className={className} type={inputType} {...rest} status={error && required ? 'error' : ''} />
+        <Input
+          className={className}
+          type={inputType}
+          onChange={handleChange}
+          {...rest}
+          status={error && required ? 'error' : ''}
+        />
       )}
       {error && required && <p className={'error'}>{error}</p>}
     </div>

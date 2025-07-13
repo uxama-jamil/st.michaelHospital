@@ -16,6 +16,7 @@ function FullPageLoader(props: FullPageLoaderProps) {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
+        width: '100%',
       }}
     >
       <LoadingOutlined style={{ fontSize: 40 }} spin />
@@ -37,14 +38,14 @@ function FullPageLoader(props: FullPageLoaderProps) {
       style={
         fullscreen
           ? {
-            position: 'fixed',
-            inset: 0,
-            zIndex: 9999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: 'rgba(255, 255, 255, 0.8)',
-          }
+              position: 'fixed',
+              inset: 0,
+              zIndex: 9999,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            }
           : undefined
       }
     />

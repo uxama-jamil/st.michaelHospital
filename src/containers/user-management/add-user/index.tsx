@@ -14,26 +14,10 @@ import { IMaskInput } from 'react-imask';
 import { RoleType, UserDesignation } from '@/constants/user-management';
 import FullPageLoader from '@/components/ui/spin';
 import ResendModal from '../resend-modal';
-
-const rules = {
-  name: {
-    required: { value: true, message: 'Name is required.' },
-    customMessage: 'Full Name is required',
-  },
-  email: {
-    required: { value: true, message: 'Email is required.' },
-    pattern: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-    customMessage: 'Invalid email address',
-  },
-  phoneNumber: {
-    required: { value: true, message: 'Phone number is required.' },
-    pattern: /^\(\d{3}\) \d{3}-\d{4}$/,
-    customMessage: 'Phone Number must be in the format (671) 555-0110',
-  },
-};
+import { userRules } from '@/utils/rules';
 
 const AddUser = () => {
-  const { setTitle, setActions, setBreadcrumbs } = useHeader();
+  const { setTitle, setActions, setBreadcrumbs, setSubtitle } = useHeader();
   const [resendModalOpen, setResendModalOpen] = useState(false);
   const [resendEmail, setResendEmail] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -65,11 +49,12 @@ const AddUser = () => {
         setSubmitting(false);
       }
     },
-    validate: (values) => validate(values, rules),
+    validate: (values) => validate(values, userRules),
   });
 
   useEffect(() => {
     setTitle('New User');
+    setSubtitle('');
     setActions([
       <Space size={'small'}>
         <Button
@@ -152,11 +137,7 @@ const AddUser = () => {
                         onAccept={(value: any) => formik.setFieldValue('phoneNumber', value)}
                         onBlur={formik.handleBlur}
                         name="phoneNumber"
-                        element={AntInput}
                         placeholder="Enter phone number"
-                        status={
-                          formik.touched.phoneNumber && formik.errors.phoneNumber ? 'error' : ''
-                        }
                         className={`input-phone ant-input${formik.touched.phoneNumber && formik.errors.phoneNumber ? ' error' : ''}`}
                       />
                       {formik.touched.phoneNumber && formik.errors.phoneNumber && (
@@ -174,7 +155,7 @@ const AddUser = () => {
                         placeholder="Select Designation"
                         name="designation"
                         value={formik.values.designation ? [formik.values.designation] : []}
-                        onChange={(value: string[]) =>
+                        onChange={(value: string | number | (string | number)[]) =>
                           formik.setFieldValue('designation', value || '')
                         }
                         onBlur={() => formik.setFieldTouched('designation', true)}

@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui';
 
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import emailIcon from '@assets/svg/email-sent.svg';
 
 import { Row } from 'antd';
@@ -9,6 +9,8 @@ import api from '@/services/api';
 import { useMessage } from '@/context/message';
 import { useState } from 'react';
 import FullPageLoader from '@/components/ui/spin';
+import { AUTH_API_FORGOT } from '@/constants/api';
+import { ROUTE_PATHS } from '@/constants/route';
 const EmailSent = () => {
   const navigate = useNavigate();
   const message = useMessage();
@@ -19,13 +21,13 @@ const EmailSent = () => {
   const handleResend = () => {
     setLoading(true);
     api
-      .post('/auth/forgot', { email })
+      .post(AUTH_API_FORGOT, { email })
       .then((res) => {
         if (res.status) {
           message.success('Email sent successfully.');
         }
       })
-      .catch((error) => {
+      .catch(() => {
         message.error('Invalid email.');
       })
       .finally(() => {
@@ -51,13 +53,13 @@ const EmailSent = () => {
             type="primary"
             block={true}
             text="Go to Sign In"
-            onClick={() => navigate('/login')}
+            onClick={() => navigate(ROUTE_PATHS.LOGIN)}
           />
         </Col>
         <Col span={24} className="text-center">
           <p>
             Didn’t receive link?{' '}
-            <span onClick={handleResend} className='resend-link'>
+            <span onClick={handleResend} className="resend-link">
               Resend
             </span>
           </p>

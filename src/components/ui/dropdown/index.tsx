@@ -1,14 +1,15 @@
 // components/form/MultiSelect.tsx
 import { Select } from 'antd';
 import styles from './style.module.scss';
+import { sanitizeInput } from '@/utils/sanitize';
 
 interface Props {
   label?: string;
   required?: boolean;
   error?: string;
-  value?: string[];
-  onChange?: (value: string[]) => void;
-  options: { label: string; value: string }[];
+  value?: string | number | Array<string | number>;
+  onChange?: (value: string | number | Array<string | number>) => void;
+  options: { label: string; value: string | number }[];
   placeholder?: string;
   [key: string]: any;
 }
@@ -18,10 +19,23 @@ const AntDropdown: React.FC<Props> = ({
   required,
   error,
   options,
+  onChange,
   className = styles.antSelect,
   placeholder,
   ...rest
 }) => {
+  const safeOptions = options.map((opt) => ({
+    label: sanitizeInput(String(opt.label)),
+    value: typeof opt.value === 'string' ? sanitizeInput(opt.value) : opt.value,
+  }));
+
+  const handleChange = (val: string[]) => {
+    if (Array.isArray(val)) {
+      onChange?.(val.map((v) => (typeof v === 'string' ? sanitizeInput(v) : v)));
+    } else {
+      onChange?.(typeof val === 'string' ? sanitizeInput(val) : val);
+    }
+  };
   return (
     <div>
       {label && (
@@ -33,10 +47,11 @@ const AntDropdown: React.FC<Props> = ({
       <Select
         mode={rest.multiple ? 'multiple' : undefined}
         allowClear
-        options={options}
+        options={safeOptions}
         placeholder={placeholder}
         className={className}
         status={error && required ? 'error' : ''}
+        onChange={handleChange}
         {...rest}
       />
       {error && required && <p className={'error'}>{error}</p>}

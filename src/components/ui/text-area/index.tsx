@@ -1,5 +1,6 @@
 import { Input } from 'antd';
 import styles from './style.module.scss';
+import { sanitizeInput } from '@/utils/sanitize';
 
 interface Props {
   label?: string;
@@ -24,19 +25,24 @@ const AntTextArea: React.FC<Props> = ({
   rows = 4,
   ...rest
 }) => {
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const sanitizedValue = sanitizeInput(e.target.value);
+    e.target.value = sanitizedValue;
+    onChange?.(e);
+  };
   return (
     <div>
       {label && (
         <label>
           {label}
-          {required && <span className='error'>*</span>}
+          {required && <span className="error">*</span>}
         </label>
       )}
       <Input.TextArea
         rows={rows}
         status={error && required ? 'error' : ''}
         value={value}
-        onChange={onChange}
+        onChange={handleChange}
         placeholder={placeholder}
         className={className}
         style={{

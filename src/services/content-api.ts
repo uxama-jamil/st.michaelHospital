@@ -6,7 +6,12 @@ import {
   S3_API_BASE,
   CONTENT_API_ALL,
 } from '@/constants/api';
-import type { AddOrUpdateContent, ContentApiResponse, FileInfo } from '@/types/content';
+import type {
+  AddOrUpdateContent,
+  ContentApiResponse,
+  ContentResponse,
+  FileInfo,
+} from '@/types/content';
 
 import { handleApiError } from '@/utils';
 import axios from 'axios';
@@ -26,7 +31,9 @@ const contentService = {
 
   getContent: async (id: string) => {
     try {
-      const response = await api.get<ContentApiResponse>(CONTENT_API.replace(':id', id));
+      const response = await api.get<{ status: boolean; data: ContentResponse }>(
+        CONTENT_API.replace(':id', id),
+      );
       return response.data;
     } catch (error) {
       handleApiError(error);
@@ -50,10 +57,10 @@ const contentService = {
       handleApiError(error);
     }
   },
-  getAllContent: async (page = 1, take = 10, orderBy = 'ASC') => {
+  getAllContent: async (page = 1, take = 50, orderBy = 'ASC', searchString = '') => {
     try {
       const response = await api.get<ContentApiResponse>(
-        `${CONTENT_API_ALL}?page=${page}&take=${take}&order=${orderBy}`,
+        `${CONTENT_API_ALL}?page=${page}&take=${take}&order=${orderBy} ${searchString ? `&searchString=${searchString}` : ''}`,
       );
       return response.data;
     } catch (error) {
@@ -65,9 +72,9 @@ const contentService = {
     try {
       const response = await api.get(`${S3_API_BASE}`, {
         params: {
-          filename: fileInfo.filename,
-          type: fileInfo.type,
-          mimetype: fileInfo.mimetype,
+          filename: fileInfo?.filename,
+          type: fileInfo?.type,
+          mimetype: fileInfo?.mimetype,
         },
       });
 
@@ -80,7 +87,6 @@ const contentService = {
 
   uploadFile: async (file: File, fileInfo) => {
     try {
-      console.log(`file object passing to ${fileInfo.signedUrl} `, file);
       const response = await axios.put(`${fileInfo.signedUrl}`, file, {
         headers: { 'Content-Type': fileInfo.mimetype },
       });

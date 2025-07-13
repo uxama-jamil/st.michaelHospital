@@ -5,15 +5,16 @@ import { useHeader } from '@/context/header';
 import { DeleteOutlined, EditOutlined, RightOutlined } from '@ant-design/icons';
 import { Col, Row, Space } from 'antd';
 import { Empty } from '@/components/ui';
-import Table from '@/components/ui/table'; // 👈 updated import
+import Table from '@/components/ui/table';
 import { MODULES_ROUTES } from '@/constants/route';
-import styles from './modules.module.scss';
+
 import api from '@/services/modules-management';
-import type { Module, RawModule, ModulesApiResponse } from '@/types/modules';
-import { MODULES_API_LIST, MODULES_API, MODULES_PAGE_SIZE } from '@/constants/api';
+import type { Module, RawModule } from '@/types/modules';
+import { MODULES_ORDER, MODULES_PAGE_SIZE } from '@/constants/api';
 import { useMessage } from '@/context/message';
 import { useModule } from '@/context/module';
 import { ButtonType } from '@/constants/button';
+import FullPageLoader from '@/components/ui/spin';
 
 type Props = {
   keywords: string[];
@@ -66,6 +67,7 @@ const Modules = () => {
     modal: false,
     id: '',
   });
+  const [isLoading, setIsLoading] = useState(false);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const { setTitle, setSubtitle, setActions, setBreadcrumbs } = useHeader();
@@ -75,10 +77,10 @@ const Modules = () => {
   const fetchModules = async (page: number = 1) => {
     setLoading(true);
     try {
-      const response = await api.getModules(page, MODULES_PAGE_SIZE, 'DESC');
+      const response = await api.getModules(page, MODULES_PAGE_SIZE, MODULES_ORDER);
 
       if (response) {
-        const rawData: RawModule[] = response.data.data || [];
+        const rawData: RawModule[] = response?.data?.data || [];
 
         const formattedData: Module[] = rawData.map((item) => ({
           ...item,
@@ -86,7 +88,7 @@ const Modules = () => {
           keywords: item.keywords.map((k) => k.name),
         }));
         setModules(formattedData);
-        setTotal(response.data.meta.itemCount || 0);
+        setTotal(response?.data?.meta?.itemCount || 0);
       }
     } catch (error) {
       message.showError(error, 'Failed to fetch modules');
@@ -101,7 +103,7 @@ const Modules = () => {
 
   useEffect(() => {
     setTitle('Module Management');
-    setSubtitle('');
+    setSubtitle(`Total: ${total}`);
     setActions([
       <Button
         key="add"
@@ -112,7 +114,7 @@ const Modules = () => {
       />,
     ]);
     setBreadcrumbs([]);
-  }, []);
+  }, [total]);
 
   const columns = useMemo(
     () => [
@@ -139,7 +141,8 @@ const Modules = () => {
         dataIndex: 'keywords',
         width: '250px',
         key: 'keywords',
-        render: (keywords: string[]) => <DynamicTagGroup keywords={keywords} />,
+        render: (keywords: string[]) =>
+          keywords.length > 0 ? <DynamicTagGroup keywords={keywords} /> : 'N/A',
       },
       {
         title: 'Status',
@@ -179,7 +182,9 @@ const Modules = () => {
                 key="view"
                 onClick={() => {
                   setModule(record);
-                  navigate(MODULES_ROUTES.CONTENT.BASE.replace(':id', record.id));
+                  navigate(
+                    MODULES_ROUTES.CONTENT.BASE.replace(':id', encodeURIComponent(record.id)),
+                  );
                 }}
               />
             </Space>
@@ -190,10 +195,13 @@ const Modules = () => {
     [],
   );
   const handleEdit = (id: string) => {
-    navigate(MODULES_ROUTES.EDIT.replace(':id', id));
+    navigate(MODULES_ROUTES.EDIT.replace(':id', encodeURIComponent(id)));
   };
   const handleDelete = async (id: string) => {
     try {
+      setDeleteModule({ name: '', modal: false, id: '' });
+      setIsLoading(true);
+
       const response = await api.deleteModule(id);
       if (response) {
         message.success('Module deleted successfully.');
@@ -204,10 +212,12 @@ const Modules = () => {
       message.showError(error, 'Failed to delete module.');
     } finally {
       setDeleteModule({ name: '', modal: false, id: '' });
+      setIsLoading(false);
     }
   };
   return (
     <>
+      {isLoading && <FullPageLoader fullscreen={true} />}
       <Row gutter={[16, 16]} justify={'end'}>
         <Col span={24}>
           <Table

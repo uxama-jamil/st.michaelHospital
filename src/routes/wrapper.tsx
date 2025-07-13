@@ -4,12 +4,12 @@ import Layout from '@/components/layouts/dashboard';
 import { useLocation } from 'react-router-dom';
 
 import { Navigate } from 'react-router-dom';
-import { AUTH_ROUTES } from '@/constants/route';
+import { AUTH_ROUTES, ROUTE_PATHS } from '@/constants/route';
 
 export function PrivateRoute({ children }) {
   const token = sessionStorage.getItem('token');
 
-  if (!token) return <Navigate to="/login" replace />;
+  if (!token) return <Navigate to={ROUTE_PATHS.LOGIN} replace />;
 
   return (
     <ModuleProvider>
@@ -24,10 +24,10 @@ export function RedirectIfAuthenticated({ children }) {
   const location = useLocation();
   // Redirect authenticated users from the login page to projects page
   if (
-    (location.pathname === '/login' ||
-      location.pathname === '/forgot-password' ||
-      location.pathname === '/email-sent' ||
-      location.pathname === '/2fa') &&
+    (location.pathname === ROUTE_PATHS.LOGIN ||
+      location.pathname === ROUTE_PATHS.FORGOT_PASSWORD ||
+      location.pathname === ROUTE_PATHS.EMAIL_SENT ||
+      location.pathname === ROUTE_PATHS.TWO_FACTOR_AUTH) &&
     token
   ) {
     return <Navigate to="/" replace />;

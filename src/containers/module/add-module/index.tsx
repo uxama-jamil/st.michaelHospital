@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useHeader } from '@/context/header';
 import { Button, Card } from '@/components/ui';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -8,7 +8,7 @@ import AntTextArea from '@/components/ui/text-area';
 import AntDropdown from '@/components/ui/dropdown';
 import FileUpload from '@/components/ui/file-uploader';
 import { useFormik } from 'formik';
-import { validate } from '@/utils';
+import { handleUploadFile, validate } from '@/utils';
 import { MODULES_ROUTES } from '@/constants/route';
 import type { ModuleForm } from '@/types/modules';
 import { useMessage } from '@/context/message';
@@ -16,15 +16,18 @@ import api from '@/services/modules-management';
 import keyword from '@/services/api';
 import { KEYWORDS_API } from '@/constants/api';
 import FullPageLoader from '@/components/ui/spin';
-import { mockImages } from '@/constants/image-links';
+
 import { ButtonType } from '@/constants/button';
 import { ModuleContentType } from '@/constants/module';
+import { addModuleRules } from '@/utils/rules';
+import type { FileInfo } from '@/types/content';
 
 const AddModule = () => {
   const message = useMessage();
   const { id } = useParams<{ id: string }>();
 
   const [isLoading, setIsLoading] = useState(false);
+
   const [moduleData, setModuleData] = useState(null);
   const [keywords, setKeywords] = useState([]);
   const [initialValues, setInitialValues] = useState<ModuleForm>({
@@ -33,40 +36,38 @@ const AddModule = () => {
     description: '',
     thumbnail: '',
   });
-  const { setTitle, setActions, setBreadcrumbs } = useHeader();
-  const rules = {
-    title: {
-      required: { value: true, message: 'Module name is required.' },
-      min: { value: 3, message: 'Module name must be between 3 and 50 characters.' },
-      max: { value: 50, message: 'Module name must be between 3 and 50 characters.' },
-    },
-    keywordIds: {
-      required: false,
-    },
-    description: {
-      required: { value: true, message: 'Description is required.' },
-      min: { value: 3, message: 'Description must be at least 3 characters.' },
-      max: { value: 500, message: 'Description must not exceed 500 characters.' },
-    },
-    thumbnail: {
-      required: { value: true, message: 'Banner image is required..' },
-    },
-  };
+  const [thumbnailDetails, setThumbnailDetails] = useState<{
+    isEditMode: boolean;
+    file: File;
+    fileInfo: FileInfo;
+  } | null>(null);
+  const fetched = useRef({
+    keywords: false,
+  });
+  const { setTitle, setActions, setBreadcrumbs, setSubtitle } = useHeader();
 
   // Fetch module data
   useEffect(() => {
-    getKeywords();
+    if (!fetched.current.keywords) {
+      getKeywords();
+      fetched.current.keywords = true;
+    }
     const fetchModule = async () => {
       try {
         setIsLoading(true);
         const response = await api.getModule(id);
         const data = response?.data;
+
         if (data) {
           setModuleData(data);
           // Normalize data for form fields
+          setThumbnailDetails((prev) => ({
+            ...prev,
+            isEditMode: true,
+          }));
           const normalized = {
             title: data.title || '',
-            keywordIds: data.keywords.map((keyword: any) => keyword.id) || [],
+            keywordIds: data.keywords?.map((keyword: any) => keyword.id) || [],
             description: data.description || '',
             thumbnail: data.thumbnail || '',
           };
@@ -103,12 +104,16 @@ const AddModule = () => {
     onSubmit: (values) => {
       handleSubmit(values);
     },
-    validate: (values) => validate(values, rules),
+    validate: (values) => validate(values, addModuleRules),
   });
   const handleSubmit = async (values: ModuleForm) => {
     try {
       setIsLoading(true);
       const payload = { ...values };
+      if (thumbnailDetails?.file) {
+        const key = await handleUploadFile(thumbnailDetails.file, thumbnailDetails.fileInfo);
+        payload.thumbnail = key;
+      }
       if (payload.keywordIds.length === 0) {
         delete payload.keywordIds;
       }
@@ -119,7 +124,7 @@ const AddModule = () => {
         if (data) {
           message.success('Module updated successfully.');
 
-          navigate(MODULES_ROUTES.CONTENT.BASE.replace(':id', data.id));
+          navigate(MODULES_ROUTES.CONTENT.BASE.replace(':id', encodeURIComponent(data.id)));
         }
       } else {
         const response = await api.createModule(payload);
@@ -127,7 +132,7 @@ const AddModule = () => {
         if (data) {
           message.success('Module created successfully.');
 
-          navigate(MODULES_ROUTES.CONTENT.BASE.replace(':id', data.id));
+          navigate(MODULES_ROUTES.CONTENT.BASE.replace(':id', encodeURIComponent(data.id)));
         }
       }
     } catch (err: any) {
@@ -140,6 +145,7 @@ const AddModule = () => {
 
   useEffect(() => {
     setTitle(`${id ? 'Edit' : 'Add'} Module`);
+    setSubtitle('');
     setActions([
       <Space size={'small'}>
         <Button
@@ -201,6 +207,7 @@ const AddModule = () => {
                         style={{ width: '100%' }}
                         placeholder="Select"
                         multiple
+                        showSearch={false}
                         name="keywordIds"
                         value={formik.values.keywordIds}
                         onChange={(value) => {
@@ -232,10 +239,18 @@ const AddModule = () => {
                         type={ModuleContentType.Image}
                         required
                         accessUrl={moduleData?.thumbnailAccessUrl || ''}
+                        isEditMode={thumbnailDetails?.isEditMode}
                         name="thumbnail"
                         value={formik.values.thumbnail}
                         onChange={(value) => {
+                          setThumbnailDetails((prev) => ({
+                            ...prev,
+                            isEditMode: false,
+                          }));
                           formik.setFieldValue('thumbnail', value);
+                        }}
+                        fileDetails={(value) => {
+                          setThumbnailDetails(value);
                         }}
                         onBlur={formik.handleBlur}
                         error={formik.touched.thumbnail && formik.errors.thumbnail}

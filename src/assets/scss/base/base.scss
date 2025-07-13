@@ -417,3 +417,19 @@ input[disabled] {
     font-size: toRem(20);
   }
 }
+
+.ant-checkbox-checked .ant-checkbox-inner {
+  border-color: $base-white;
+}
+.content-type-button {
+  cursor: pointer;
+  &:disabled {
+    cursor: not-allowed;
+  }
+  &.selected {
+    &:disabled {
+      background-color: $primary-color;
+      color: $base-white;
+    }
+  }
+}

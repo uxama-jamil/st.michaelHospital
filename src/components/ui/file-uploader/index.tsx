@@ -9,7 +9,7 @@ import type { GenericUploadProps } from '@/types/modules';
 import contentService from '@/services/content-api';
 import { Button } from '@/components/ui';
 import type { FileInfo, FileUploadResponse } from '@/types/content';
-import { extractOriginalFilename } from '@/utils';
+import { extractOriginalFilename, getFileInfo } from '@/utils';
 
 const getAcceptType = (type: ModuleContentType): string => {
   switch (type) {
@@ -62,13 +62,16 @@ const FileUpload = ({
   required,
   onChange,
   maxSizeMB,
+  isEditMode = false,
   maxWidth,
   maxHeight,
   accessUrl,
+  mediaLength,
+  fileDetails,
   value,
   error,
   ...props
-}: GenericUploadProps & { required?: boolean }) => {
+}: GenericUploadProps & { required?: boolean; mediaLength?: (length: number) => void }) => {
   const message = useMessage();
   const [loading, setLoading] = useState(false);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
@@ -78,7 +81,7 @@ const FileUpload = ({
       setFileList([
         {
           uid: '1',
-          name: extractOriginalFilename(value) || 'uploaded-file',
+          name: (isEditMode ? extractOriginalFilename(value) : value) || 'Uploaded-File',
           url: accessUrl ? accessUrl : '',
           status: 'done',
         },
@@ -95,6 +98,8 @@ const FileUpload = ({
     },
     customRequest: async ({ file, onSuccess, onError }) => {
       try {
+        setFileList([]);
+
         setLoading(true);
         const rcFile = file as RcFile;
 
@@ -125,29 +130,23 @@ const FileUpload = ({
           type: type,
           mimetype: rcFile.type,
         };
-        console.log('fileInfo', fileInfo);
-        const uploadUrl = await contentService.getUploadUrl(fileInfo);
-        const uploadUrlData = uploadUrl?.data;
-        console.log('uploadUrl', uploadUrlData);
-
-        if (uploadUrlData as FileUploadResponse) {
-          const response = await contentService.uploadFile(rcFile, {
-            ...fileInfo,
-            ...uploadUrlData,
-          });
-          console.log('response from s3', response);
+        let fileData;
+        if (type !== ModuleContentType.Image) {
+          fileData = await getFileInfo(rcFile);
         }
+        const length = fileData?.length || 0;
 
         const uploadedFile: UploadFile = {
           uid,
           name: rcFile.name,
-          url: accessUrl ? accessUrl : '',
+          url: accessUrl ? encodeURI(accessUrl) : '',
           status: 'done',
         };
 
         setFileList([uploadedFile]);
-        onChange(uploadUrlData?.key);
-        message.success('File uploaded successfully');
+        onChange?.(uploadedFile.name);
+        fileDetails?.({ file: rcFile, fileInfo: fileInfo });
+        mediaLength?.(length.toFixed());
         onSuccess?.(uploadedFile);
       } catch (err: any) {
         setFileList((prev) => prev.map((f) => ({ ...f, status: 'error' })));

@@ -27,6 +27,13 @@ export interface Module {
   contentCount: number;
 }
 
+export interface ModuleResponse {
+  status: boolean;
+  message: string;
+  statusCode: number;
+  data: RawModule;
+}
+
 export interface RawModule {
   id: string;
   createdAt: string;
@@ -35,10 +42,18 @@ export interface RawModule {
   projectId: string | null;
   description: string;
   thumbnail: string;
+  thumbnailAccessUrl: string;
   keywords: Keyword[];
   createdBy?: CreatedBy;
   status: string;
   contentCount: number;
+}
+
+export interface CreateModuleResponse {
+  status: boolean;
+  message: string;
+  statusCode: number;
+  data: RawModule;
 }
 
 export interface ModulesApiResponse {
@@ -115,6 +130,7 @@ export interface CardContentProps {
   title: string;
   description?: string;
   sessionNo?: number;
+  allowMenu?: boolean;
   url?: string;
   length?: number | null;
   thumbnail?: string;

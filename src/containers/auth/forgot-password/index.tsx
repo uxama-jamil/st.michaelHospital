@@ -8,8 +8,12 @@ import { Row } from 'antd';
 import { validate } from '@/utils';
 import { useMessage } from '@/context/message';
 import { useEffect, useState } from 'react';
+import { forgotPasswordRules } from '@/utils/rules';
+import { COOLDOWN_TIME } from '@/constants/auth';
+import { AUTH_API_FORGOT } from '@/constants/api';
+import { ROUTE_PATHS } from '@/constants/route';
 
-const ForgotPassword = ({ onBackToSignIn }: { onBackToSignIn?: () => void }) => {
+const ForgotPassword = () => {
   const message = useMessage();
   const [loading, setLoading] = useState(false);
   const [isEmailSent, setIsEmailSent] = useState(false);
@@ -24,13 +28,6 @@ const ForgotPassword = ({ onBackToSignIn }: { onBackToSignIn?: () => void }) => 
     return () => clearTimeout(timer);
   }, [cooldown]);
 
-  const rules = {
-    email: {
-      required: { value: true, message: 'Email is required.' },
-      pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-    },
-  };
-
   const { values, touched, errors, handleChange, handleBlur, handleSubmit } = useFormik({
     initialValues: {
       email: '',
@@ -38,12 +35,12 @@ const ForgotPassword = ({ onBackToSignIn }: { onBackToSignIn?: () => void }) => 
     onSubmit: (values) => {
       setLoading(true);
       api
-        .post('/auth/forgot', values)
+        .post(AUTH_API_FORGOT, values)
         .then((res) => {
-          if (res.status) {
+          if (res?.status) {
             message.success('Email sent successfully.');
             setIsEmailSent(true);
-            navigate('/email-sent', { state: { email: values.email } });
+            navigate(ROUTE_PATHS.EMAIL_SENT, { state: { email: values.email } });
           }
         })
         .catch((error) => {
@@ -55,11 +52,11 @@ const ForgotPassword = ({ onBackToSignIn }: { onBackToSignIn?: () => void }) => 
           setLoading(false);
           setIsEmailSent(false);
           if (isEmailSent) {
-            setCooldown(60); // Start cooldown after submit
+            setCooldown(COOLDOWN_TIME); // Start cooldown after submit
           }
         });
     },
-    validate: (values) => validate(values, rules),
+    validate: (values) => validate(values, forgotPasswordRules),
   });
 
   return (
@@ -95,7 +92,7 @@ const ForgotPassword = ({ onBackToSignIn }: { onBackToSignIn?: () => void }) => 
             />
           </Col>
           <Col span="24" className="text-center">
-            <Link to="/login">Back To Sign In</Link>
+            <Link to={ROUTE_PATHS.LOGIN}>Back to Sign In</Link>
           </Col>
         </Row>
       </form>

@@ -5,34 +5,21 @@ import api from '@/services/api';
 import { useAuth } from '@/context/auth-provider';
 import style from './style.module.scss';
 import { Row, Col } from 'antd';
-import { validate, validatePassword } from '@/utils';
+import { validate } from '@/utils';
 import { useMessage } from '@/context/message';
 import { useState } from 'react';
 import AntInput from '@/components/ui/input';
 import { RoleType } from '@/constants/user-management';
-import { AUTH_ROUTES } from '@/constants/route';
+import { AUTH_ROUTES, ROUTE_PATHS } from '@/constants/route';
+import { loginRules } from '@/utils/rules';
+import { AUTH_API_LOGIN } from '@/constants/api';
 
 const Login = () => {
   const { loginAction } = useAuth();
   const message = useMessage();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const rules = {
-    email: {
-      required: { value: true, message: 'Email is required.' },
-      pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-    },
-    password: {
-      required: { value: true, message: 'Password is required.' },
-      min: { value: 8, message: 'Password must be at least 8 characters.' },
-      custom: {
-        isValid: (value: string) => validatePassword(value) === undefined,
-        message: 'Password must contain uppercase, lowercase, number, and special character.',
-      },
-    },
-  };
   const { values, touched, errors, handleChange, handleBlur, handleSubmit } = useFormik({
-    // enableReinitialize: true,
     initialValues: {
       email: '',
       password: '',
@@ -41,12 +28,12 @@ const Login = () => {
       setLoading(true);
       const payload = { ...values, role: RoleType.ADMIN };
       api
-        .post('/auth/login', payload)
+        .post(AUTH_API_LOGIN, payload)
         .then((res) => {
           if (res.status) {
             const { data } = res;
 
-            const userDetails = data.data;
+            const userDetails = data?.data;
 
             if (userDetails) {
               message.info('Please check your email for OTP.');
@@ -64,7 +51,7 @@ const Login = () => {
           setLoading(false);
         });
     },
-    validate: (values) => validate(values, rules),
+    validate: (values) => validate(values, loginRules),
   });
   return (
     <>
@@ -97,7 +84,7 @@ const Login = () => {
             />
           </Col>
           <Col span="24" className="text-right">
-            <Link to="/forgot-password" className={style.forgotLink}>
+            <Link to={ROUTE_PATHS.FORGOT_PASSWORD} className={style.forgotLink}>
               Forgot password?
             </Link>
           </Col>

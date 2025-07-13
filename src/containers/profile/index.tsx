@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import profileServices from '@/services/profile-api';
 import { Spin, Alert, Row, Col, Space } from 'antd';
@@ -13,27 +13,12 @@ import { useHeader } from '@/context/header';
 import { useLocation } from 'react-router-dom';
 import { UserDesignation } from '@/constants/user-management';
 import { IMaskInput } from 'react-imask';
-
-const rules = {
-  name: {
-    required: { value: true, message: "Name is required." },
-    customMessage: 'Full Name is required',
-  },
-  email: {
-    required: { value: true, message: "Email is required." },
-    pattern: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-    customMessage: 'Invalid email address',
-  },
-  phoneNumber: {
-    required: { value: true, message: "Phone number is required." },
-    pattern: /^\(\d{3}\) \d{3}-\d{4}$/,
-    customMessage: 'Phone Number must be in the format (671) 555-0110',
-  },
-};
+import { useAuth } from '@/context/auth-provider';
+import { userRules } from '@/utils/rules';
 
 const Profile = () => {
-  const userDetailsStr = localStorage.getItem('userDetails');
-  const id = useMemo(() => userDetailsStr ? JSON.parse(userDetailsStr)?.id : undefined, [userDetailsStr]);
+  const { user: userDetails } = useAuth();
+  const id = useMemo(() => userDetails?.id, [userDetails]);
   const location = useLocation();
   const isViewOnly = location.state?.isViewOnly === true;
 
@@ -43,6 +28,9 @@ const Profile = () => {
   const message = useMessage();
   const { setTitle, setActions, setBreadcrumbs } = useHeader();
   const navigate = useNavigate();
+  const fetched = useRef({
+    user: false,
+  });
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -72,7 +60,10 @@ const Profile = () => {
         setLoading(false);
       }
     };
-    fetchUser();
+    if (!fetched.current.user) {
+      fetchUser();
+      fetched.current.user = true;
+    }
   }, [id]);
 
   const formik = useFormik({
@@ -83,7 +74,7 @@ const Profile = () => {
       designation: user?.designation || '',
     },
     enableReinitialize: true,
-    validate: (values) => validate(values, rules),
+    validate: (values) => validate(values, userRules),
     onSubmit: async (values, { setSubmitting }) => {
       try {
         if (!id) throw new Error('No user ID provided.');
@@ -131,7 +122,15 @@ const Profile = () => {
       </Space>,
     ]);
     setBreadcrumbs([]);
-  }, [formik.handleSubmit, formik.isSubmitting, isViewOnly, navigate, setActions, setBreadcrumbs, setTitle]);
+  }, [
+    formik.handleSubmit,
+    formik.isSubmitting,
+    isViewOnly,
+    navigate,
+    setActions,
+    setBreadcrumbs,
+    setTitle,
+  ]);
 
   if (loading) return <Spin />;
   if (error) return <Alert type="error" message={error} />;
@@ -141,7 +140,12 @@ const Profile = () => {
       <Col sm={{ span: 24 }} md={{ span: 20, offset: 2 }} lg={{ span: 18, offset: 3 }}>
         <Card title="Profile detail">
           <Row>
-            <Col sm={{ span: 24, offset: 0 }} md={{ span: 20, offset: 2 }} lg={{ span: 18, offset: 3 }} xl={{ span: 16, offset: 4 }}>
+            <Col
+              sm={{ span: 24, offset: 0 }}
+              md={{ span: 20, offset: 2 }}
+              lg={{ span: 18, offset: 3 }}
+              xl={{ span: 16, offset: 4 }}
+            >
               <form onSubmit={formik.handleSubmit}>
                 <Row gutter={[24, 24]}>
                   <Col span={24}>
@@ -153,7 +157,7 @@ const Profile = () => {
                       value={formik.values.name}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
-                      error={formik.touched.name && formik.errors.name}
+                      error={formik.touched.name && formik.errors.name?.toString()}
                     />
                   </Col>
                   <Col span={24}>
@@ -165,26 +169,27 @@ const Profile = () => {
                       value={formik.values.email}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
-                      error={formik.touched.email && formik.errors.email}
+                      error={formik.touched.email && formik.errors.email?.toString()}
                       disabled
                     />
                   </Col>
                   <Col span={24}>
-                    <label>Phone Number <sup>*</sup></label>
+                    <label>
+                      Phone Number <sup>*</sup>
+                    </label>
                     <IMaskInput
                       mask="(000) 000-0000"
                       value={formik.values.phoneNumber}
                       onAccept={(value: any) => formik.setFieldValue('phoneNumber', value)}
                       onBlur={formik.handleBlur}
                       name="phoneNumber"
-                      element={AntInput}
                       placeholder="Enter phone number"
-                      status={formik.touched.phoneNumber && formik.errors.phoneNumber ? 'error' : ''}
                       className={`input-phone ant-input${formik.touched.phoneNumber && formik.errors.phoneNumber ? ' error' : ''}`}
                     />
-                    {formik.touched.phoneNumber && typeof formik.errors.phoneNumber === 'string' && (
-                      <p className={'error'}>{formik.errors.phoneNumber}</p>
-                    )}
+                    {formik.touched.phoneNumber &&
+                      typeof formik.errors.phoneNumber === 'string' && (
+                        <p className={'error'}>{formik.errors.phoneNumber}</p>
+                      )}
                   </Col>
                   <Col span={24}>
                     <AntDropdown
@@ -197,9 +202,11 @@ const Profile = () => {
                       placeholder="Select Designation"
                       name="designation"
                       value={formik.values.designation ? [formik.values.designation] : []}
-                      onChange={(value: string[]) => formik.setFieldValue('designation', value || '')}
+                      onChange={(value: string | number | (string | number)[]) =>
+                        formik.setFieldValue('designation', value || '')
+                      }
                       onBlur={() => formik.setFieldTouched('designation', true)}
-                      error={formik.touched.designation && formik.errors.designation}
+                      error={formik.touched.designation && formik.errors.designation?.toString()}
                     />
                   </Col>
                 </Row>

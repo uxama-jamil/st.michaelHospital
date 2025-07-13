@@ -34,11 +34,11 @@ const Header: React.FC<HeaderProps> = ({
           <Col>
             <Row align="middle">
               <Col span={24}>
-                <Row align={'middle'} gutter={[8, 0]}>
-                  <Col className='d-inline-flex '>
+                <Row align={'middle'} gutter={[8, 0]} className={styles.headerTitleContainer}>
+                  <Col className="d-inline-flex ">
                     <h2>{title}</h2>
                   </Col>
-                  <Col className='d-inline-flex '>
+                  <Col className={styles.subtitle}>
                     {subtitle && <span className={styles.subtitle}>{subtitle}</span>}
                   </Col>
                 </Row>
@@ -51,8 +51,7 @@ const Header: React.FC<HeaderProps> = ({
                       key: `breadcrumb-${index}`,
                       title: (
                         <span
-                          className={`header-breadcrumb-item${item.active ? ' active' : ''
-                            }`}
+                          className={`header-breadcrumb-item${item.active ? ' active' : ''}`}
                           onClick={item.onClick}
                           style={{ cursor: item.onClick ? 'pointer' : 'default' }}
                         >

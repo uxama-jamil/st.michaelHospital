@@ -7,11 +7,11 @@ import VideoIcon from '@assets/images/list-icons/play-btn.svg';
 import AudioIcon from '@assets/images/list-icons/audio-btn.svg';
 import DocumentIcon from '@assets/images/list-icons/Document-btn.svg';
 import LinkIcon from '@assets/images/list-icons/Link-btn.svg';
+import defaultThumbnail from '@assets/images/default.jpg';
 import { Tag } from '@components/ui';
 import { useState } from 'react';
 
-export const PLACEHOLDER_IMG =
-  'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png?x-oss-process=image/blur,r_50,s_50/quality,q_1/resize,m_mfit,h_200,w_200';
+export const PLACEHOLDER_IMG = defaultThumbnail;
 
 export const ICON_MAP: Record<string, JSX.Element> = {
   [ModuleContentType.Video]: <img src={VideoIcon} />,
@@ -30,6 +30,7 @@ const CardContent = ({
   title,
   contentType,
   thumbnailAccessUrl,
+  allowMenu = true,
   createdAt,
   onEdit,
   onDelete,
@@ -107,9 +108,11 @@ const CardContent = ({
               </span>
             </Col>
             <Col>
-              <Dropdown overlay={menu} trigger={['click']} placement="bottomRight">
-                <MoreOutlined className={styles.moreBtn} />
-              </Dropdown>
+              {allowMenu && (
+                <Dropdown overlay={menu} trigger={['click']} placement="bottomRight">
+                  <MoreOutlined className={styles.moreBtn} />
+                </Dropdown>
+              )}
             </Col>
           </Row>
         </div>

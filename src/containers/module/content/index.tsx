@@ -9,30 +9,29 @@ import CardContent from '@/components/ui/card-content';
 import type { ModuleContent } from '@/types/modules';
 import modulesManagementServices from '@/services/modules-management';
 import { useHeader } from '@/context/header';
-import { useModule } from '@/context/module';
 import { useMessage } from '@/context/message';
 import { Button } from '@/components/ui';
 import FullPageLoader from '@/components/ui/spin';
 import { getContentHeight } from '@/utils';
 import { ModuleContentStatus } from '@/constants/module';
 import { ButtonType } from '@/constants/button';
-
-const PAGE_SIZE = 12;
+import { MODULE_CONTENT_ORDER, MODULE_CONTENT_PAGE_SIZE } from '@/constants/api';
 
 const ModuleContentList: React.FC = () => {
   const [contents, setContents] = useState<ModuleContent[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [total, setTotal] = useState(0);
   const navigate = useNavigate();
   const message = useMessage();
   const [module, setModule] = useState(null);
-  const { setTitle, setActions, setBreadcrumbs } = useHeader();
+  const { setTitle, setActions, setBreadcrumbs, setSubtitle } = useHeader();
   const [contentHeight, setContentHeight] = useState(400);
   const [confirmModal, setConfirmModal] = useState<{ open: boolean; item?: ModuleContent }>({
     open: false,
   });
-  const [publishLoading, setPublishLoading] = useState(false);
+
   const { id: categoryId } = useParams<{ id: string }>();
 
   const fetchContents = useCallback(
@@ -42,20 +41,20 @@ const ModuleContentList: React.FC = () => {
       const pageToFetch = reset ? 1 : currentPage;
 
       const payload = {
-        order: 'ASC',
+        order: MODULE_CONTENT_ORDER,
         page: pageToFetch,
-        take: PAGE_SIZE,
+        take: MODULE_CONTENT_PAGE_SIZE,
         categoryId,
       };
 
       try {
         const result = await modulesManagementServices.getModuleContents(payload);
         const items = result?.data?.data || [];
-        const meta = result?.data?.meta || {};
-
+        const meta = result?.data?.meta;
+        setTotal(meta?.itemCount);
         if (items.length > 0) {
           setContents((prev) => (reset ? items : [...prev, ...items]));
-          setHasMore(meta.hasNextPage);
+          setHasMore(meta?.hasNextPage);
           setCurrentPage(reset ? 2 : currentPage + 1);
         } else {
           if (reset) setContents([]);
@@ -75,7 +74,7 @@ const ModuleContentList: React.FC = () => {
 
     setTitle(module.title);
     setBreadcrumbs([]);
-
+    setSubtitle(`Total: ${total}`);
     const actions = (
       <Space size="small">
         <Button
@@ -96,7 +95,6 @@ const ModuleContentList: React.FC = () => {
                 disabled={contents.length === 0}
                 size="small"
                 type={ButtonType.SECONDARY}
-                loading={publishLoading}
               />
             )}
             {module.status === ModuleContentStatus.Published && (
@@ -107,14 +105,17 @@ const ModuleContentList: React.FC = () => {
                 text="Save as draft"
                 size="small"
                 type={ButtonType.SECONDARY}
-                loading={publishLoading}
               />
             )}
           </>
         }
         <Button
           key="Add New Content"
-          onClick={() => navigate(MODULES_ROUTES.CONTENT.ADD.replace(':categoryId', categoryId))}
+          onClick={() =>
+            navigate(
+              MODULES_ROUTES.CONTENT.ADD.replace(':categoryId', encodeURIComponent(categoryId)),
+            )
+          }
           htmlType="button"
           text="Add New Content"
           size="small"
@@ -125,7 +126,6 @@ const ModuleContentList: React.FC = () => {
 
     setActions([actions]);
     setBreadcrumbs([]);
-    console.log('contents.length', contents.length);
 
     const updateHeight = () => setContentHeight(getContentHeight());
     updateHeight();
@@ -158,32 +158,35 @@ const ModuleContentList: React.FC = () => {
   const handleDelete = useCallback(
     async (id: string) => {
       try {
+        setConfirmModal({ open: false });
+        setIsLoading(true);
         const deletedItem = contents.find((item) => item.id === id);
         await modulesManagementServices.deleteContent(id);
         message.success(`${deletedItem?.title} deleted successfully.`);
         fetchContents(true);
       } catch (error) {
         message.showError(error, 'Failed to delete the content.');
+      } finally {
+        setIsLoading(false);
       }
     },
     [fetchContents, message],
   );
 
   const handlePublish = useCallback(
-    async (status: 'Draft' | 'Published') => {
-      setPublishLoading(true);
+    async (status: ModuleContentStatus) => {
+      setIsLoading(true);
       try {
         await modulesManagementServices.publishContent(module?.id, status);
         status === ModuleContentStatus.Published
           ? message.success(`Module published successfully.`)
           : message.success(`Module saved as draft successfully.`);
-        console.log('status', status);
         fetchModule();
         fetchContents(true);
       } catch (error) {
         message.showError(error, `Failed to update the module ${status}.`);
       } finally {
-        setPublishLoading(false);
+        setIsLoading(false);
       }
     },
     [message, fetchContents, module],
@@ -201,7 +204,11 @@ const ModuleContentList: React.FC = () => {
             heading="No video & audio added yet"
             message="Start managing your modules by adding your first one."
             buttonText="Add New Content"
-            onClick={() => navigate(MODULES_ROUTES.CONTENT.ADD.replace(':categoryId', categoryId))}
+            onClick={() =>
+              navigate(
+                MODULES_ROUTES.CONTENT.ADD.replace(':categoryId', encodeURIComponent(categoryId)),
+              )
+            }
           />
         </Col>
       </Row>
@@ -210,6 +217,7 @@ const ModuleContentList: React.FC = () => {
 
   return (
     <>
+      {isLoading && <FullPageLoader fullscreen={true} />}
       <Row>
         <Col span={24}>
           <div
@@ -255,15 +263,25 @@ const ModuleContentList: React.FC = () => {
                     <CardContent
                       {...item}
                       contentType={item.contentType}
-                      onDelete={() => setConfirmModal({ open: true, item })}
-                      onEdit={() =>
-                        navigate(
-                          MODULES_ROUTES.CONTENT.EDIT.replace(':id', item.id).replace(
-                            ':categoryId',
-                            categoryId,
-                          ),
-                        )
-                      }
+                      onDelete={() => {
+                        module.status === ModuleContentStatus.Published
+                          ? message.error(
+                              'The module cannot be modified after it has been published, please revert to draft to make changes to it',
+                            )
+                          : setConfirmModal({ open: true, item });
+                      }}
+                      onEdit={() => {
+                        module.status === ModuleContentStatus.Published
+                          ? message.error(
+                              'The module cannot be modified after it has been published, please revert to draft to make changes to it',
+                            )
+                          : navigate(
+                              MODULES_ROUTES.CONTENT.EDIT.replace(
+                                ':id',
+                                encodeURIComponent(item.id),
+                              ).replace(':categoryId', encodeURIComponent(categoryId)),
+                            );
+                      }}
                     />
                   </List.Item>
                 )}

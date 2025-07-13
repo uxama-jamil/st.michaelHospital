@@ -1,6 +1,11 @@
 import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
 import pdfWorker from 'pdfjs-dist/build/pdf.worker.mjs?url';
 import { Tooltip } from 'antd';
+import * as XLSX from 'xlsx';
+import mammoth from 'mammoth';
+import pptxParser from 'pptx-parser';
+import contentService from '@/services/content-api';
+import type { FileInfo, FileUploadResponse } from '@/types/content';
 
 export const validate = (
   values: Record<string, any>,
@@ -135,11 +140,11 @@ export const createEmailLink = (email: string): JSX.Element => {
 
 GlobalWorkerOptions.workerSrc = pdfWorker;
 
-export const getFileInfo = async (file) => {
+export const getFileInfo = async (file: File) => {
   const { name, size, type } = file;
 
   // Convert size to readable format
-  const readableSize = (bytes) => {
+  const readableSize = (bytes: number) => {
     const units = ['B', 'KB', 'MB', 'GB'];
     let i = 0;
     let s = bytes;
@@ -151,7 +156,7 @@ export const getFileInfo = async (file) => {
   };
 
   // Get duration for audio/video
-  const getMediaDuration = (file) => {
+  const getMediaDuration = (file: File): Promise<number> => {
     return new Promise((resolve, reject) => {
       const url = URL.createObjectURL(file);
       const media = document.createElement(type.startsWith('audio') ? 'audio' : 'video');
@@ -160,24 +165,74 @@ export const getFileInfo = async (file) => {
       media.src = url;
       media.onloadedmetadata = () => {
         URL.revokeObjectURL(url);
-        resolve(media.duration); // in seconds
+        resolve(media.duration); // seconds
       };
-      media.onerror = (e) => reject('Cannot load media');
+      media.onerror = () => reject('Cannot load media');
     });
   };
-  // Get number of pages in PDF
+
+  // Get PDF page count
   const getPdfPageCount = async (file: File): Promise<number> => {
     const typedarray = new Uint8Array(await file.arrayBuffer());
     const pdf = await getDocument({ data: typedarray }).promise;
     return pdf.numPages;
   };
 
-  let length = null;
+  // Get Excel sheet count
+  const getExcelSheetCount = async (file: File): Promise<number> => {
+    const arrayBuffer = await file.arrayBuffer();
+    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+    return workbook.SheetNames.length;
+  };
+
+  // Get PPTX slide count
+  const getPptxSlideCount = async (file: File): Promise<number> => {
+    const arrayBuffer = await file.arrayBuffer();
+    const slides = await pptxParser(arrayBuffer);
+    return slides.length;
+  };
+
+  // Approximate DOCX pages (based on section breaks)
+  const getDocxPageCount = async (file: File): Promise<number> => {
+    const JSZip = (await import('jszip')).default;
+    const zip = await JSZip.loadAsync(file);
+    const xml = await zip.file('word/document.xml')?.async('text');
+
+    if (!xml) return 1;
+
+    // Count explicit page breaks and section breaks
+    const pageBreaks = (xml.match(/<w:br[^>]+w:type="page"[^>]*>/g) || []).length;
+    const sections = (xml.match(/<w:sectPr/g) || []).length;
+
+    // Estimate: start with 1 page, then add breaks
+    const pageCount = 1 + pageBreaks + sections;
+
+    return pageCount;
+  };
+
+  let length: number | null = null;
   try {
     if (type.startsWith('audio') || type.startsWith('video')) {
       length = await getMediaDuration(file);
     } else if (type === 'application/pdf') {
       length = await getPdfPageCount(file);
+    } else if (
+      type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+      name.endsWith('.xls') ||
+      name.endsWith('.xlsx')
+    ) {
+      length = await getExcelSheetCount(file);
+    } else if (
+      type === 'application/vnd.openxmlformats-officedocument.presentationml.presentation' ||
+      name.endsWith('.ppt') ||
+      name.endsWith('.pptx')
+    ) {
+      length = await getPptxSlideCount(file);
+    } else if (
+      type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+      name.endsWith('.docx')
+    ) {
+      length = await getDocxPageCount(file);
     }
   } catch (err) {
     console.warn('Error getting file length:', err);
@@ -186,7 +241,7 @@ export const getFileInfo = async (file) => {
   return {
     name,
     size: readableSize(size),
-    length,
+    length, // seconds for media, pages/sheets/slides for documents
   };
 };
 
@@ -240,4 +295,17 @@ export function truncateText(text: string, maxLength: number): JSX.Element | str
 export function extractOriginalFilename(key: string): string {
   const filename = key.split('/').pop() || '';
   return filename.substring(37); // 36 (UUID) + 1 (hyphen) = 37
+}
+
+export async function handleUploadFile(file: File, fileInfo: FileInfo) {
+  const uploadUrl = await contentService.getUploadUrl(fileInfo);
+  const uploadUrlData = uploadUrl?.data;
+
+  if (uploadUrlData as FileUploadResponse) {
+    await contentService.uploadFile(file, {
+      ...fileInfo,
+      ...uploadUrlData,
+    });
+  }
+  return uploadUrlData?.key;
 }

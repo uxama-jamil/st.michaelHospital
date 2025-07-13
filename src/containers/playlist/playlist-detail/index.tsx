@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, use } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { List, Row, Col, Space, Modal } from 'antd';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
@@ -14,24 +14,24 @@ import { Button } from '@/components/ui';
 import FullPageLoader from '@/components/ui/spin';
 import { getContentHeight } from '@/utils';
 import { ButtonType } from '@/constants/button';
-
-const PAGE_SIZE = 12;
+import { ModuleContentStatus, ModuleContentType } from '@/constants/module';
+import { PLAYLIST_CONTENT_ORDER, PLAYLIST_CONTENT_PAGE_SIZE } from '@/constants/api';
 
 const PlaylistDetail: React.FC = () => {
   const [contents, setContents] = useState<Content[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [total, setTotal] = useState(0);
   const [contentHeight, setContentHeight] = useState(400);
   const [playlist, setPlaylist] = useState<any>(null);
-  const [publishLoading, setPublishLoading] = useState(false);
   const [confirmModal, setConfirmModal] = useState<{ open: boolean; item?: Content }>({
     open: false,
   });
 
   const navigate = useNavigate();
   const message = useMessage();
-  const { setTitle, setActions, setBreadcrumbs } = useHeader();
+  const { setTitle, setActions, setBreadcrumbs, setSubtitle } = useHeader();
   const { id: playListId } = useParams<{ id: string }>();
 
   // Fetch playlist contents
@@ -42,17 +42,19 @@ const PlaylistDetail: React.FC = () => {
       const pageToFetch = reset ? 1 : currentPage;
 
       const payload = {
-        order: 'DESC',
+        order: PLAYLIST_CONTENT_ORDER,
         page: pageToFetch,
-        take: PAGE_SIZE,
+        take: PLAYLIST_CONTENT_PAGE_SIZE,
         id: playListId,
       };
 
       try {
         const result = await playListServices.getPlayListContents(payload);
-        const items = result?.data?.data || [];
-        const meta = result?.data?.meta || {};
-
+        const items: Content[] = Array.isArray(result?.data?.data)
+          ? (result.data.data as unknown as Content[])
+          : [];
+        const meta = result?.data?.meta;
+        setTotal(meta.itemCount);
         setContents((prev) => (reset ? items : [...prev, ...items]));
         setHasMore(meta.hasNextPage ?? false);
         setCurrentPage(reset ? 2 : currentPage + 1);
@@ -69,6 +71,7 @@ const PlaylistDetail: React.FC = () => {
   useEffect(() => {
     if (!playlist) return;
     setTitle(playlist?.name || '');
+    setSubtitle(`Total: ${total}`);
     setActions([
       <Space size="small" key="actions">
         <Button
@@ -82,7 +85,7 @@ const PlaylistDetail: React.FC = () => {
           key="Edit"
           onClick={() => {
             if (playListId) {
-              navigate(PLAYLIST_ROUTES.EDIT.replace(':id', playListId));
+              navigate(PLAYLIST_ROUTES.EDIT.replace(':id', encodeURIComponent(playListId)));
             }
           }}
           htmlType="button"
@@ -93,27 +96,25 @@ const PlaylistDetail: React.FC = () => {
         />
 
         <>
-          {playlist?.status.toLowerCase() === 'draft' && (
+          {playlist?.status.toLowerCase() === ModuleContentStatus.Draft.toLowerCase() && (
             <Button
               key="Publish Module"
-              onClick={() => handlePublish('Published')}
+              onClick={() => handlePublish(ModuleContentStatus.Published)}
               htmlType="button"
-              text="Publish Module"
+              text="Publish"
               disabled={contents.length === 0}
               size="small"
               type={ButtonType.SECONDARY}
-              loading={publishLoading}
             />
           )}
-          {playlist?.status.toLowerCase() === 'published' && (
+          {playlist?.status.toLowerCase() === ModuleContentStatus.Published.toLowerCase() && (
             <Button
               key="Draft Module"
-              onClick={() => handlePublish('Draft')}
+              onClick={() => handlePublish(ModuleContentStatus.Draft)}
               htmlType="button"
               text="Save as draft"
               size="small"
               type={ButtonType.SECONDARY}
-              loading={publishLoading}
             />
           )}
         </>
@@ -127,20 +128,19 @@ const PlaylistDetail: React.FC = () => {
     return () => window.removeEventListener('resize', updateHeight);
   }, [playlist, contents.length, setTitle, setActions, setBreadcrumbs, navigate, playListId]);
 
-  const handlePublish = async (status: 'Draft' | 'Published') => {
-    setPublishLoading(true);
+  const handlePublish = async (status: ModuleContentStatus) => {
+    setIsLoading(true);
     try {
       await playListServices.publishContent(playListId, status);
       status === 'Published'
         ? message.success(`Playlist published successfully.`)
         : message.success(`Playlist saved as draft successfully.`);
-      console.log('status', status);
       fetchPlaylist();
       fetchContents(true);
     } catch (error) {
       message.showError(error, `Failed to update the module ${status}.`);
     } finally {
-      setPublishLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -151,7 +151,6 @@ const PlaylistDetail: React.FC = () => {
 
       if (response) {
         // Normalize data for form fields
-        console.log('response', response);
         setPlaylist(response);
       } else {
         message.error('Playlist data not found.');
@@ -210,6 +209,7 @@ const PlaylistDetail: React.FC = () => {
 
   return (
     <>
+      {isLoading && <FullPageLoader fullscreen={true} />}
       <Row>
         <Col span={24}>
           <div
@@ -253,16 +253,8 @@ const PlaylistDetail: React.FC = () => {
                   <List.Item key={item.id}>
                     <CardContent
                       {...item}
-                      contentType={item.contentType}
-                      onDelete={() => setConfirmModal({ open: true, item })}
-                      onEdit={() =>
-                        navigate(
-                          PLAYLIST_ROUTES.EDIT.replace(':id', item.id).replace(
-                            ':playListId',
-                            playListId || '',
-                          ),
-                        )
-                      }
+                      contentType={item.contentType as ModuleContentType}
+                      allowMenu={false}
                     />
                   </List.Item>
                 )}

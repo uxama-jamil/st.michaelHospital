@@ -2,12 +2,15 @@ import { Input, Button } from '@/components/ui';
 
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
-import { Row, Col, message } from 'antd';
+import { Row, Col } from 'antd';
 import { useFormik } from 'formik';
-import { validate, validatePassword } from '@/utils';
+import { validate } from '@/utils';
 import { useEffect, useState } from 'react';
 import api from '@/services/api';
 import { useMessage } from '@/context/message';
+import { setPasswordRules } from '@/utils/rules';
+import { ROUTE_PATHS } from '@/constants/route';
+import { AUTH_API_RESET, AUTH_API_TOKEN_STATUS } from '@/constants/api';
 
 const SetPassword = () => {
   const message = useMessage();
@@ -19,23 +22,10 @@ const SetPassword = () => {
 
   useEffect(() => {
     if (!token) {
-      navigate('/login');
+      navigate(ROUTE_PATHS.LOGIN);
     }
   }, [token, navigate]);
-  const rules = {
-    password: {
-      required: { value: true, message: 'Password is required.' },
-      min: { value: 8, message: 'Password must be at least 8 characters.' },
-      custom: {
-        isValid: (value: string) => validatePassword(value) === undefined,
-        message: 'Password must contain uppercase, lowercase, number, and special character.',
-      },
-    },
-    confirmPassword: {
-      required: { value: true, message: 'Please confirm your password.' },
-      match: { field: 'password', message: 'Passwords do not match.' },
-    },
-  };
+
   const { values, handleChange, handleBlur, handleSubmit, errors, touched } = useFormik({
     initialValues: {
       password: '',
@@ -49,29 +39,29 @@ const SetPassword = () => {
       };
 
       api
-        .post('/auth/reset', payload)
+        .post(AUTH_API_RESET, payload)
         .then((res) => {
           if (res.status) {
             message.success('Password has been reset successfully.');
-            navigate('/login');
+            navigate(ROUTE_PATHS.LOGIN);
           }
         })
-        .catch((error) => {
+        .catch(() => {
           message.error('Failed to reset password.');
         })
         .finally(() => {
           setLoading(false);
         });
     },
-    validate: (values) => validate(values, rules),
+    validate: (values) => validate(values, setPasswordRules),
   });
   const checkTokenStatus = async () => {
     try {
-      const response = await api.post('/auth/tokenstatus', { token });
+      const response = await api.post(AUTH_API_TOKEN_STATUS, { token });
     } catch (error: any) {
       const errorMessage = error?.response?.data?.message;
       message.error(errorMessage || 'The link has been expired.');
-      navigate('/login');
+      navigate(ROUTE_PATHS.LOGIN);
     }
   };
 
@@ -124,7 +114,7 @@ const SetPassword = () => {
             />
           </Col>
           <Col span="24" className="text-center">
-            <Link to="/login">Back To Sign In</Link>
+            <Link to={ROUTE_PATHS.LOGIN}>Back to Sign In</Link>
           </Col>
         </Row>
       </form>
