@@ -9,17 +9,17 @@ export const MODULES_PAGE_SIZE = 20;
 export const USER_MANAGEMENT_ORDER = Order.DESC;
 export const USER_MANAGEMENT_PAGE_SIZE = 20;
 
+export const MODULE_CONTENT_ORDER = Order.ASC;
+export const MODULE_CONTENT_PAGE_SIZE = 12;
+
+export const CONTENT_DROP_DOWN_ORDER = Order.DESC;
+export const CONTENT_DROP_DOWN_PAGE_SIZE = 50;
+
 export const PLAYLIST_ORDER = Order.DESC;
 export const PLAYLIST_PAGE_SIZE = 20;
 
 export const PLAYLIST_CONTENT_ORDER = Order.DESC;
 export const PLAYLIST_CONTENT_PAGE_SIZE = 20;
-
-export const MODULE_CONTENT_ORDER = Order.DESC;
-export const MODULE_CONTENT_PAGE_SIZE = 12;
-
-export const CONTENT_DROP_DOWN_ORDER = Order.DESC;
-export const CONTENT_DROP_DOWN_PAGE_SIZE = 50;
 
 export const MAX_VISIBLE_TAGS = 2;
 
@@ -49,6 +49,7 @@ export const USER_MANAGEMENT_API_ADMINS = '/users/admins';
 export const USER_MANAGEMENT_API_ID = '/users/:id';
 export const USER_MANAGEMENT_API_CREATE = '/auth/register';
 export const USER_MANAGEMENT_API_FORGOT = '/auth/forgot';
+export const USER_DASIGNATION_API = '/users/designation/list';
 
 export const RESET_PASSWORD_API = '/auth/update/password';
 

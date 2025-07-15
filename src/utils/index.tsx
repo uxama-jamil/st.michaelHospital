@@ -2,7 +2,6 @@ import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
 import pdfWorker from 'pdfjs-dist/build/pdf.worker.mjs?url';
 import { Tooltip } from 'antd';
 import * as XLSX from 'xlsx';
-import mammoth from 'mammoth';
 import pptxParser from 'pptx-parser';
 import contentService from '@/services/content-api';
 import type { FileInfo, FileUploadResponse } from '@/types/content';
@@ -115,7 +114,7 @@ export const handleApiError = (error: any): never => {
   throw { message: error.message || 'Unknown error' };
 };
 
-export const formatPhoneNumber = (rawNumber: string): JSX.Element => {
+export const formatPhoneNumber = (rawNumber: string): React.ReactNode => {
   let digits = rawNumber.replace(/\D/g, '');
 
   // Remove leading '1' if present (US country code)
@@ -134,7 +133,7 @@ export const formatPhoneNumber = (rawNumber: string): JSX.Element => {
   return <a href={`tel:${digits}`}>{formatted}</a>;
 };
 
-export const createEmailLink = (email: string): JSX.Element => {
+export const createEmailLink = (email: string): React.ReactNode => {
   return <a href={`mailto:${email}`}>{email}</a>;
 };
 
@@ -281,7 +280,7 @@ export function getContentHeight(mainSelector = 'main'): number {
   return window.innerHeight - headerHeight - paddingTop - paddingBottom;
 }
 
-export function truncateText(text: string, maxLength: number): JSX.Element | string {
+export function truncateText(text: string, maxLength: number): React.ReactNode | string {
   if (text.length > maxLength) {
     return (
       <Tooltip title={text}>

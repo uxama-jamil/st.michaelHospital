@@ -79,7 +79,10 @@ function AuthProvider({ children }) {
   };
 
   useEffect(() => {
-    fetchUser();
+    const timer = setTimeout(() => {
+      fetchUser();
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const value = useMemo(

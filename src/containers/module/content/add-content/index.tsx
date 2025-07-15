@@ -362,6 +362,8 @@ const AddContent = () => {
                             }
                             onClick={() => {
                               formik.setFieldValue('contentType', type);
+
+                              formik.setFieldValue('url', '');
                             }}
                             text={type}
                             disabled={!!id}

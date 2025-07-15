@@ -9,7 +9,7 @@ import playListServices from '@/services/playlist-api';
 import type { Playlist } from '@/types/playlist';
 import type { TablePaginationConfig } from 'antd/es/table';
 import { useMessage } from '@/context/message';
-import { DynamicTagGroup } from '../module';
+import DynamicTagGroup from '@/components/ui/dynamic-tag-group';
 import { PLAYLIST_ORDER, PLAYLIST_PAGE_SIZE } from '@/constants/api';
 import FullPageLoader from '@/components/ui/spin';
 import { ModuleContentStatus } from '@/constants/module';
@@ -66,7 +66,10 @@ const PlayList = () => {
   );
 
   useEffect(() => {
-    fetchPlayList(pagination.current!, pagination.pageSize!);
+    const timer = setTimeout(() => {
+      fetchPlayList(pagination.current!, pagination.pageSize!);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [fetchPlayList, pagination.current, pagination.pageSize]);
 
   const handleEditOrView = useCallback(
@@ -120,7 +123,7 @@ const PlayList = () => {
         title: 'Keyword',
         key: 'keywords',
         dataIndex: 'keywords',
-        width: 280,
+        width: 300,
         render: (keywords: any[]) =>
           keywords.length > 0 ? <DynamicTagGroup keywords={keywords.map((k) => k?.name)} /> : 'N/A',
       },

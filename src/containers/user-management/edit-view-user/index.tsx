@@ -11,7 +11,6 @@ import AntDropdown from '@/components/ui/dropdown';
 import { USER_ROUTES } from '@/constants/route';
 import { useHeader } from '@/context/header';
 import { useLocation } from 'react-router-dom';
-import { UserDesignation } from '@/constants/user-management';
 import { IMaskInput } from 'react-imask';
 import { userRules } from '@/utils/rules';
 
@@ -23,6 +22,7 @@ const EditViewUser = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [designation, setDesignation] = useState<string[]>([]);
   const message = useMessage();
   const { setTitle, setActions, setBreadcrumbs, setSubtitle } = useHeader();
   const fetched = useRef({
@@ -30,6 +30,12 @@ const EditViewUser = () => {
   });
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      getDesignation();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, []);
   // Fetch and normalize user
   useEffect(() => {
     const fetchUser = async () => {
@@ -66,6 +72,12 @@ const EditViewUser = () => {
       fetched.current.user = true;
     }
   }, [id]);
+
+  const getDesignation = async () => {
+    const designation = await userManagementServices.getUserDesignation();
+    const designationData = designation?.data;
+    setDesignation(designationData);
+  };
 
   // Setup formik
   const formik = useFormik({
@@ -199,9 +211,9 @@ const EditViewUser = () => {
                   <Col span={24}>
                     <AntDropdown
                       label="Designation"
-                      options={Object.values(UserDesignation).map((designation) => ({
+                      options={designation.map((designation) => ({
                         label: designation,
-                        value: designation, // <-- use the enum value directly
+                        value: designation,
                       }))}
                       style={{ width: '100%' }}
                       placeholder="Select Designation"

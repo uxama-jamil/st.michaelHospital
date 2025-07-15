@@ -199,7 +199,7 @@ const AddPlayList = () => {
           text="Cancel"
           size="small"
           type={ButtonType.DEFAULT}
-          onClick={() => navigate(PLAYLIST_ROUTES.BASE)}
+          onClick={() => navigate(-1)}
         />
         <Button
           key="save"
@@ -225,8 +225,10 @@ const AddPlayList = () => {
   }, []);
 
   useEffect(() => {
-    setCurrentPage(1);
-    fetchContentData(true);
+    const timer = setTimeout(() => {
+      setCurrentPage(1);
+      fetchContentData(true);
+    }, 0);
 
     if (!fetched.current.keywords) {
       getKeywords();
@@ -237,7 +239,7 @@ const AddPlayList = () => {
       fetchPlaylist();
       fetched.current.playlist = true;
     }
-
+    return () => clearTimeout(timer);
     // eslint-disable-next-line
   }, []);
 

@@ -73,7 +73,10 @@ const UserManagement = () => {
   };
 
   useEffect(() => {
-    fetchUsers(pagination.current!, pagination.pageSize!);
+    const timer = setTimeout(() => {
+      fetchUsers(pagination.current!, pagination.pageSize!);
+    }, 0);
+    return () => clearTimeout(timer);
     // eslint-disable-next-line
   }, [pagination.current, pagination.pageSize]);
 

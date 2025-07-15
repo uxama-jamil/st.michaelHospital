@@ -11,10 +11,10 @@ import AntDropdown from '@/components/ui/dropdown';
 import { ROUTE_PATHS } from '@/constants/route';
 import { useHeader } from '@/context/header';
 import { useLocation } from 'react-router-dom';
-import { UserDesignation } from '@/constants/user-management';
 import { IMaskInput } from 'react-imask';
 import { useAuth } from '@/context/auth-provider';
 import { userRules } from '@/utils/rules';
+import userManagementServices from '@/services/user-management-api';
 
 const Profile = () => {
   const { user: userDetails } = useAuth();
@@ -25,13 +25,20 @@ const Profile = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [designation, setDesignation] = useState<string[]>([]);
   const message = useMessage();
-  const { setTitle, setActions, setBreadcrumbs } = useHeader();
+  const { setTitle, setActions, setBreadcrumbs, setSubtitle } = useHeader();
   const navigate = useNavigate();
   const fetched = useRef({
     user: false,
   });
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      getDesignation();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, []);
   useEffect(() => {
     const fetchUser = async () => {
       setLoading(true);
@@ -60,11 +67,17 @@ const Profile = () => {
         setLoading(false);
       }
     };
-    if (!fetched.current.user) {
+    if (id && !fetched.current.user) {
       fetchUser();
       fetched.current.user = true;
     }
   }, [id]);
+
+  const getDesignation = async () => {
+    const designation = await userManagementServices.getUserDesignation();
+    const designationData = designation?.data;
+    setDesignation(designationData);
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -99,6 +112,7 @@ const Profile = () => {
 
   useEffect(() => {
     setTitle('Profile');
+    setSubtitle('');
     setActions([
       <Space size="small" key="actions">
         <Button
@@ -194,7 +208,7 @@ const Profile = () => {
                   <Col span={24}>
                     <AntDropdown
                       label="Designation"
-                      options={Object.values(UserDesignation).map((designation) => ({
+                      options={designation.map((designation) => ({
                         label: designation,
                         value: designation,
                       }))}

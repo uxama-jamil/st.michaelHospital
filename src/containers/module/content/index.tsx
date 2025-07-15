@@ -135,8 +135,11 @@ const ModuleContentList: React.FC = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-    fetchContents(true);
-    fetchModule();
+    const timer = setTimeout(() => {
+      fetchContents(true);
+      fetchModule();
+    }, 0);
+    return () => clearTimeout(timer);
     // eslint-disable-next-line
   }, []);
 

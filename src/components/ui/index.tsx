@@ -10,3 +10,4 @@ export { default as Spin } from './spin';
 export { default as Table } from './table';
 export { default as Tag } from './tag';
 export { default as NoData } from './no-data';
+export { default as DynamicTagGroup } from './dynamic-tag-group';

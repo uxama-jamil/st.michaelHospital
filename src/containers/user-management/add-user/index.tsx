@@ -11,7 +11,7 @@ import { USER_ROUTES } from '@/constants/route';
 import userManagementServices from '@/services/user-management-api';
 import { useMessage } from '@/context/message';
 import { IMaskInput } from 'react-imask';
-import { RoleType, UserDesignation } from '@/constants/user-management';
+import { RoleType } from '@/constants/user-management';
 import FullPageLoader from '@/components/ui/spin';
 import ResendModal from '../resend-modal';
 import { userRules } from '@/utils/rules';
@@ -20,6 +20,7 @@ const AddUser = () => {
   const { setTitle, setActions, setBreadcrumbs, setSubtitle } = useHeader();
   const [resendModalOpen, setResendModalOpen] = useState(false);
   const [resendEmail, setResendEmail] = useState<string | null>(null);
+  const [designation, setDesignation] = useState<string[]>([]);
   const navigate = useNavigate();
   const message = useMessage();
   const formik = useFormik({
@@ -52,6 +53,11 @@ const AddUser = () => {
     validate: (values) => validate(values, userRules),
   });
 
+  const getDesignation = async () => {
+    const designation = await userManagementServices.getUserDesignation();
+    const designationData = designation?.data;
+    setDesignation(designationData);
+  };
   useEffect(() => {
     setTitle('New User');
     setSubtitle('');
@@ -86,6 +92,10 @@ const AddUser = () => {
         active: true,
       },
     ]);
+    const timer = setTimeout(() => {
+      getDesignation();
+    }, 0);
+    return () => clearTimeout(timer);
     // eslint-disable-next-line
   }, []);
   return (
@@ -147,7 +157,7 @@ const AddUser = () => {
                     <Col span={24}>
                       <AntDropdown
                         label="Designation"
-                        options={Object.values(UserDesignation).map((designation) => ({
+                        options={designation.map((designation) => ({
                           label: designation,
                           value: designation,
                         }))}

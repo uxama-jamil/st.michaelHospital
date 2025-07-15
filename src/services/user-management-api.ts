@@ -1,6 +1,7 @@
 import type { ApiError, ApiResponse, UserDetails } from '@/types/user-management';
 import api from './api';
 import {
+  USER_DASIGNATION_API,
   USER_MANAGEMENT_API_ADMINS,
   USER_MANAGEMENT_API_BASE,
   USER_MANAGEMENT_API_CREATE,
@@ -72,6 +73,14 @@ const userManagementServices = {
   resendEmail: async (email: string): Promise<void> => {
     try {
       await api.post(USER_MANAGEMENT_API_FORGOT, { email });
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
+  getUserDesignation: async (): Promise<{ status: boolean; data: string[] }> => {
+    try {
+      const response = await api.get<{ status: boolean; data: string[] }>(USER_DASIGNATION_API);
+      return response.data;
     } catch (error) {
       handleApiError(error);
     }

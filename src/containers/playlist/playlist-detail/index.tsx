@@ -79,7 +79,7 @@ const PlaylistDetail: React.FC = () => {
           text="Back"
           size="small"
           type={ButtonType.DEFAULT}
-          onClick={() => navigate(PLAYLIST_ROUTES.BASE)}
+          onClick={() => navigate(-1)}
         />
         <Button
           key="Edit"
@@ -162,14 +162,14 @@ const PlaylistDetail: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    fetchPlaylist();
-  }, []);
-
   // Initial fetch
   useEffect(() => {
     setCurrentPage(1);
-    fetchContents(true);
+    const timer = setTimeout(() => {
+      fetchPlaylist();
+      fetchContents(true);
+    }, 0);
+    return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playListId]);
 

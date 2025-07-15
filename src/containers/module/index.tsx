@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useHeader } from '@/context/header';
 import { DeleteOutlined, EditOutlined, RightOutlined } from '@ant-design/icons';
-import { Col, Row, Space } from 'antd';
+import { Col, Row, Space, Tooltip } from 'antd';
 import { Empty } from '@/components/ui';
 import Table from '@/components/ui/table';
 import { MODULES_ROUTES } from '@/constants/route';
@@ -15,48 +15,7 @@ import { useMessage } from '@/context/message';
 import { useModule } from '@/context/module';
 import { ButtonType } from '@/constants/button';
 import FullPageLoader from '@/components/ui/spin';
-
-type Props = {
-  keywords: string[];
-  maxTagWidth?: number;
-};
-
-export const DynamicTagGroup = ({ keywords, maxTagWidth = 80 }: Props) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [visibleCount, setVisibleCount] = useState(keywords.length);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const totalWidth = container.offsetWidth;
-    let usedWidth = 0;
-    let count = 0;
-
-    for (let i = 0; i < keywords.length; i++) {
-      usedWidth += maxTagWidth + 8; // add padding/margin approx
-      if (usedWidth > totalWidth) break;
-      count++;
-    }
-    setVisibleCount(count);
-  }, [keywords]);
-
-  const visible = keywords.slice(0, visibleCount);
-  const hidden = keywords.length - visibleCount;
-
-  return (
-    <div ref={containerRef} style={{ width: '100%' }}>
-      <Space size={[4, 4]} wrap>
-        {visible.map((k, i) => (
-          <Tag key={i} variant="secondary">
-            {k}
-          </Tag>
-        ))}
-        {hidden > 0 && <Tag variant="secondary">{`+${hidden}`}</Tag>}
-      </Space>
-    </div>
-  );
-};
+import DynamicTagGroup from '@/components/ui/dynamic-tag-group';
 
 const Modules = () => {
   const message = useMessage();
@@ -73,7 +32,6 @@ const Modules = () => {
   const { setTitle, setSubtitle, setActions, setBreadcrumbs } = useHeader();
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
-
   const fetchModules = async (page: number = 1) => {
     setLoading(true);
     try {
@@ -98,7 +56,11 @@ const Modules = () => {
   };
 
   useEffect(() => {
-    fetchModules(page);
+    const timer = setTimeout(() => {
+      fetchModules(page);
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [page]);
 
   useEffect(() => {

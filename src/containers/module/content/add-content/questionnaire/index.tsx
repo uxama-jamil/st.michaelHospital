@@ -3,7 +3,6 @@ import type { Question } from '@/types/content';
 import { Checkbox, Col, Dropdown, Form, Menu, Modal, Row, Space, Switch } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
 import styles from '../style.module.scss';
-
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useMessage } from '@/context/message';
@@ -78,13 +77,32 @@ const Questionnaire = ({
       return;
     }
 
-    if (trimmedOptions.some((o) => !o.optionValue)) {
-      message.error('All options must have non-empty values.');
+    if (
+      questions.some(
+        (q, idx) =>
+          idx !== idTracker &&
+          q.questionText.trim().toLowerCase() === trimmedQuestion.toLowerCase(),
+      )
+    ) {
+      message.error('This question already exists.');
       return;
     }
 
     if (trimmedOptions.length < 2) {
       message.error('Please add at least two options.');
+      return;
+    }
+
+    if (trimmedOptions.some((o) => !o.optionValue)) {
+      message.error('All options must have non-empty values.');
+      return;
+    }
+
+    const lowerCaseOptions = trimmedOptions.map((o) => o.optionValue.toLowerCase());
+    const hasDuplicateOptions = new Set(lowerCaseOptions).size !== lowerCaseOptions.length;
+
+    if (hasDuplicateOptions) {
+      message.error('Option values must be unique.');
       return;
     }
 
@@ -104,7 +122,6 @@ const Questionnaire = ({
       options: formatted,
     };
 
-    // Save to state
     setQuestions((prev) => {
       const updated = [...prev];
       if (idTracker !== null) {
@@ -203,8 +220,13 @@ const Questionnaire = ({
 
         <DialogBox visible={isModalVisible} setVisible={setIsModalVisible} footer={null}>
           <Form layout="vertical">
-            <Form.Item label="Question" required>
+            <Form.Item>
+              <label>
+                Question
+                <span className="error">*</span>
+              </label>
               <Input
+                className={styles.question}
                 placeholder="Enter your question"
                 value={question}
                 onChange={(e) => setQuestion(e.target.value.trimStart())}
